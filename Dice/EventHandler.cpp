@@ -37,6 +37,7 @@
 #include "RandomImage.h"/*Ëæ»úÍ¼Æ¬*/
 #include "CDs_Sum_Function.h"/*×Ü½á*/
 #include "CDs_UpertoLower.h"
+#include "SpecialFunctionMap.h"
 
 /*
 TODO:
