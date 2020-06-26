@@ -146,6 +146,8 @@ namespace Dice
 		thread msgSendThread(SendMsg);
 		msgSendThread.detach();
 		strFileLoc = getAppDirectory();
+		Sleep(10);
+		HANDLE hThread = CreateThread(NULL, 0, MainCirculate, NULL, 0, NULL);/*mark总循环开启*/
 		/*
 		* 名称存储-创建与读取
 		*/
@@ -577,6 +579,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "st")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 2;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -689,6 +693,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ri")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
 				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
@@ -767,6 +773,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 4) == "init")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
 				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
@@ -789,6 +797,8 @@ namespace Dice
 		}
 		else if (strLowerMessage[intMsgCnt] == 'w')
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt++;
 			bool boolDetail = false;
 			if (strLowerMessage[intMsgCnt] == 'w')
@@ -1103,6 +1113,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ob")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
 				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
@@ -1296,18 +1308,24 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ti")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			string strAns = strNickName + "的疯狂发作-临时症状:\n";
 			TempInsane(strAns);
 			dice_msg.Reply(strAns);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "li")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			string strAns = strNickName + "的疯狂发作-总结症状:\n";
 			LongInsane(strAns);
 			dice_msg.Reply(strAns);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "sc")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 2;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -1409,6 +1427,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "en")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 2;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -1576,6 +1596,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 4) == "name")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 4;
 			while (isspace(static_cast<unsigned char>(dice_msg.msg[intMsgCnt])))
 				intMsgCnt++;
@@ -1639,6 +1661,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "nnn")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 3;
 			while (isspace(static_cast<unsigned char>(dice_msg.msg[intMsgCnt])))
 				intMsgCnt++;
@@ -1665,6 +1689,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "nn")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
 				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
@@ -1701,6 +1727,8 @@ namespace Dice
 		}
 		else if (strLowerMessage[intMsgCnt] == 'n')
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 1;
 			while (isspace(static_cast<unsigned char>(dice_msg.msg[intMsgCnt])))
 				intMsgCnt++;
@@ -1732,6 +1760,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 5) == "rules")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 5;
 			while (isspace(static_cast<unsigned char>(dice_msg.msg[intMsgCnt])))
 				intMsgCnt++;
@@ -1750,6 +1780,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "set")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 3;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -1779,12 +1811,16 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 5) == "coc6d")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			string strReply = strNickName;
 			COC6D(strReply);
 			dice_msg.Reply(strReply);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 4) == "coc6")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 4;
 			if (strLowerMessage[intMsgCnt] == 's')
 				intMsgCnt++;
@@ -1818,6 +1854,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "dnd")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 3;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -1849,12 +1887,16 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 5) == "coc7d" || strLowerMessage.substr(intMsgCnt, 4) == "cocd")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			string strReply = strNickName;
 			COC7D(strReply);
 			dice_msg.Reply(strReply);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "coc")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 3;
 			if (strLowerMessage[intMsgCnt] == '7')
 				intMsgCnt++;
@@ -1890,6 +1932,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ra")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 2;
 			string strSkillName;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
@@ -1959,6 +2003,8 @@ namespace Dice
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "rc")
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 2;
 			string strSkillName;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
@@ -2028,6 +2074,8 @@ namespace Dice
 		}
 		else if (strLowerMessage[intMsgCnt] == 'r')
 		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 1;
 			bool boolDetail = true, isHidden = false;
 			if (dice_msg.msg[intMsgCnt] == 's')
