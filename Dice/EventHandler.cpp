@@ -2258,6 +2258,83 @@ namespace Dice
 			COC7(strReply, intNum);
 			dice_msg.Reply(strReply);
 		}
+		else if (strLowerMessage.substr(intMsgCnt, 3) == "ast")/*mark*/
+		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
+			if (dice_msg.msg_type == Dice::MsgType::Private) 
+				return;
+			intMsgCnt += 3;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			string Command;
+			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !isspace(
+				static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+			{
+				Command += strLowerMessage[intMsgCnt];
+				intMsgCnt++;
+			}
+			if (Command == "show")
+			{
+				string strReply;
+				if (!RoomRule.count(dice_msg.group_id))
+				{
+					strReply = "当前房规为：大成功：1-5 大失败：96-100";
+				}
+				else if (RoomRule[dice_msg.group_id] == 1)
+				{
+					strReply = "当前房规为：大成功：1 大失败：100";
+				}
+				else if (RoomRule[dice_msg.group_id] == 0)
+				{
+					strReply = "当前房规为：大成功：已禁用 大失败：已禁用";
+				}
+				else
+				{
+					strReply = "当前房规为：大成功：1-" + to_string(RoomRule[dice_msg.group_id]) + "大失败：" + to_string(101 - RoomRule[dice_msg.group_id]) + "-100";
+				}
+				dice_msg.Reply(strReply);
+				return;
+			}
+			else
+			{
+				string strRoomRule;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strRoomRule += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if (!strRoomRule.length())
+				{
+					if (RoomRule.count(dice_msg.group_id))
+					{
+						RoomRule.erase(dice_msg.group_id);
+						dice_msg.Reply(GlobalMsg["strRoomRuleClear"]);
+					}
+					else
+						dice_msg.Reply(GlobalMsg["strRoomRuleClearErr"]);
+					return;
+				}
+				int intRoomRule = stoi(strRoomRule);
+				if (intRoomRule > 50 || intRoomRule < 0)
+				{
+					dice_msg.Reply(GlobalMsg["strRoomRuleSetErr"]);
+				}
+				else
+				{
+					RoomRule[dice_msg.group_id] = intRoomRule;
+					string strReply;
+					if (intRoomRule == 1)
+						strReply = GlobalMsg["strRoomRuleSet"] + "当前房规为：大成功：1  大失败：100";
+					else if (!intRoomRule)
+						strReply = GlobalMsg["strRoomRuleSet"] + "当前房规为：大成功：已禁用  大失败：已禁用";
+					else
+						strReply = GlobalMsg["strRoomRuleSet"] + "当前房规为：大成功：1-" + to_string(intRoomRule) + "大失败：" + to_string(101 - intRoomRule) + "-100";
+					dice_msg.Reply(strReply);
+				}
+				return;
+							}
+		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ra")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
