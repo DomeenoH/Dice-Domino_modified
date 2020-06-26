@@ -39,7 +39,7 @@ const unsigned short Dice_Build = 524;
 const std::string Dice_Ver_Without_Build = "2.3.8";
 const std::string DiceRequestHeader = "Dice/" + Dice_Ver_Without_Build;
 const std::string Dice_Ver = Dice_Ver_Without_Build + "(" + std::to_string(Dice_Build) + ")";
-const std::string Dice_Short_Ver = "Dice! by 溯洄 Version " + Dice_Ver;
+const std::string Dice_Short_Ver = "Dice! by 溯洄_多米诺魔改 Ver. " + Dice_Ver;
 #ifdef __clang__
 
 #ifdef _MSC_VER
@@ -53,7 +53,7 @@ const std::string Dice_Full_Ver = Dice_Short_Ver + " [CLANG " + __clang_version_
 #else
 
 #ifdef _MSC_VER
-const std::string Dice_Full_Ver = Dice_Short_Ver + " [MSVC " + std::to_string(_MSC_FULL_VER) + " " + __DATE__ + " " + __TIME__ + "]";
+const std::string Dice_Full_Ver = Dice_Short_Ver/* + " [MSVC " + std::to_string(_MSC_FULL_VER) + " " + __DATE__ + " " + __TIME__ + "]"*/;
 #elif defined(__GNUC__)
 const std::string Dice_Full_Ver = Dice_Short_Ver + " [GNUC " + std::to_string(__GNUC__) + "." + std::to_string(__GNUC_MINOR__) + "." + std::to_string(__GNUC_PATCHLEVEL__) + " " + __DATE__ + " " + __TIME__ + "]";
 #else
@@ -79,6 +79,10 @@ std::map<const std::string, std::string> GlobalMsg
 	{"strValueErr", "掷骰表达式输入错误!"},
 	{"strInputErr", "命令或掷骰表达式输入错误!"},
 	{"strUnknownErr", "发生了未知错误!"},
+		{"strMEDisabledErr", "已禁用.me命令!过家家禁止x"},
+	{"strGroupIDInvalid", "查无此群!请查证后再拨!"},
+	{"strSendErr", "消息发送失败！邮件被邮差吃掉了！"},
+	{"strDisabledErr", "不让咱说话还想让咱干活?(命令无法执行:青木莲已在此群中被关闭!)"},
 	{"strUnableToGetErrorMsg", "无法获取错误信息!"},
 	{"strDiceTooBigErr", "骰娘被你扔出的骰子淹没了"},
 	{"strRequestRetCodeErr", "访问服务器时出现错误! HTTP状态码: {0}"},
@@ -114,7 +118,12 @@ std::map<const std::string, std::string> GlobalMsg
 	{"strSuccess", "成功"},
 	{"strHardSuccess", "困难成功"},
 	{"strExtremeSuccess", "极难成功"},
+	{"strSCFumble", "哎呀呀，是大失败..."},
 	{"strCriticalSuccess", "大成功"},
+	{"strSCFailure", "嗯...失败了呢"},
+	{"strSCSuccess", "嘁，成功了"},
+	{"strENFailure", "失败了，你一无所获"},
+	{"strENSuccess", "成功了哦"},
 	{"strInitListClearedNotice", "成功清除先攻记录!"},
 	{"strInitListIsEmptyErr", "错误: 先攻列表为空!"},
 	{"strCommandNotAvailableErr", "错误: 此命令仅可在群/讨论组中使用"},
@@ -138,39 +147,8 @@ std::map<const std::string, std::string> GlobalMsg
 	{"strHelpCommandSuccessfullyDisabledNotice", "成功在本群/讨论组中禁用.help命令!"},
 	{"strHelpCommandAlreadyDisabledErr", "错误: 在本群/讨论组中.help命令已经被禁用!"},
 	{"strHelpCommandDisabledErr", "管理员已在此群/讨论组中禁用.help命令!"},
-	{"strHelpMsg" , Dice_Short_Ver + "\n" +
-	R"(请使用!dismiss [机器人QQ号]命令让机器人自动退群或讨论组！
-跑团记录着色器: https://logpainter.kokona.tech
-<通用命令>
-.r [掷骰表达式*] [原因]			普通掷骰
-.rs	[掷骰表达式*] [原因]			简化输出
-.w/ww XaY						骰池
-.set [1-99999之间的整数]			设置默认骰
-.sc SC表达式** [San值]			自动Sancheck
-.en [技能名] [技能值]			增强检定/幕间成长
-.coc7/6 [个数]					COC7/6人物作成
-.dnd [个数]					DND人物作成
-.coc7/6d					详细版COC7/6人物作成
-.ti/li					疯狂发作-临时/总结症状
-.st [del/clr/show] [属性名] [属性值]		人物卡导入
-.rc/ra [技能名] [技能值]		技能检定(规则书/房规)
-.jrrp [on/off]				今日人品检定
-.name [cn/jp/en] [个数]			生成随机名称
-.rules [规则名称:]规则条目		规则查询
-.n [名称]					设置/删除全局昵称
-.nnn [cn/jp/en]				随机设置昵称
-.rh [掷骰表达式*] [原因]			暗骰,结果私聊发送
-.help						显示帮助
-<仅限群/多人聊天>
-.nn [名称]					设置/删除昵称
-.ri [加值] [昵称]			DnD先攻掷骰
-.init [clr]					DnD先攻查看/清空
-.bot [on/off] [机器人QQ号]		机器人开启或关闭
-.ob [exit/list/clr/on/off]			旁观模式
-.welcome 欢迎消息				群欢迎提示
-*COC7惩罚骰为P+个数,奖励骰为B+个数
- 支持使用K来取较大的几个骰子
- 支持使用 个数#表达式 进行多轮掷骰
-**SC表达式为 成功扣San/失败扣San,如:1/1d6
-插件交流/bug反馈/查看源代码请加QQ群941980833或624807593(已满)"}
-};
+	{"strRoomRuleSetErr","大成功大失败概率无效，请输入0-50内的整数！"},
+	{"strRoomRuleClear","已将房规还原为默认值（大成功1-5，大失败96-100）"},
+	{"strRoomRuleClearErr","未设置房规，无需还原"},
+	{"strRoomRuleSet","设置房规成功！"},
+	{"strHelpMsg" , Dice_Short_Ver + "\n" + "更多信息请扫描二维码——[CQ:image,file=HELP.jpg]"}

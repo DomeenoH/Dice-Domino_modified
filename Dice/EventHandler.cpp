@@ -29,7 +29,6 @@
 #include "eventHandler.h"
 #include "RDConstant.h"
 
-#include "SpecialFunctionMap.h"
 #include "MasterData.h"
 #include "Constchar_to_LPCWSTR.h"/*const char -> LPSWSTR*/
 #include "CDMainCirculate.h"/*总循环控制*/
@@ -52,6 +51,45 @@ using namespace std;
 using namespace CQ;
 
 unique_ptr<NameStorage> Name;
+
+map<long long, int> DefaultDice;
+map<long long, string> WelcomeMsg;
+set<long long> DisabledGroup;
+set<long long> DisabledDiscuss;
+set<long long> DisabledJRRPGroup;
+set<long long> DisabledJRRPDiscuss;
+set<long long> DisabledMEGroup;
+set<long long> DisabledHELPGroup;
+set<long long> DisabledHELPDiscuss;
+set<long long> DisabledOBGroup;
+set<long long> DisabledOBDiscuss;
+unique_ptr<Initlist> ilInitList;
+
+struct SourceType
+{
+	SourceType(long long a, int b, long long c) : QQ(a), Type(b), GrouporDiscussID(c)
+	{
+	}
+	SourceType(long long a, Dice::MsgType b, long long c) : QQ(a), Type(static_cast<int>(b)), GrouporDiscussID(c)
+	{
+	}
+	long long QQ = 0;
+	int Type = 0;
+	long long GrouporDiscussID = 0;
+
+	bool operator<(SourceType b) const
+	{
+		return this->QQ < b.QQ;
+	}
+};
+
+using PropType = map<string, int>;
+map<SourceType, PropType> CharacterProp;
+multimap<long long, long long> ObserveGroup;
+multimap<long long, long long> ObserveDiscuss;
+string strFileLoc;
+
+
 
 std::string strip(std::string origin)
 {
@@ -99,41 +137,32 @@ std::string getName(long long QQ, long long GroupID = 0)
 	return strip(getStrangerInfo(QQ).nick);
 }
 
-map<long long, int> DefaultDice;
-map<long long, string> WelcomeMsg;
-set<long long> DisabledGroup;
-set<long long> DisabledDiscuss;
-set<long long> DisabledJRRPGroup;
-set<long long> DisabledJRRPDiscuss;
-set<long long> DisabledHELPGroup;
-set<long long> DisabledHELPDiscuss;
-set<long long> DisabledOBGroup;
-set<long long> DisabledOBDiscuss;
-unique_ptr<Initlist> ilInitList;
 
-struct SourceType
+
+#ifdef DEBUG
+struct GrSourceType
 {
-	SourceType(long long a, int b, long long c) : QQ(a), Type(b), GrouporDiscussID(c)
+	GrSourceType(long long a, int b, long long c) : QQ(a), Type(b), GrouporDiscussID(c)
 	{
 	}
-	SourceType(long long a, Dice::MsgType b, long long c) : QQ(a), Type(static_cast<int>(b)), GrouporDiscussID(c)
+	GrSourceType(long long a, Dice::MsgType b, long long c) : QQ(a), Type(static_cast<int>(b)), GrouporDiscussID(c)
 	{
 	}
 	long long QQ = 0;
 	int Type = 0;
 	long long GrouporDiscussID = 0;
 
-	bool operator<(SourceType b) const
+	bool operator<(GrSourceType b) const
 	{
-		return this->QQ < b.QQ;
+		if (b.GrouporDiscussID == 0)/*此时可按照QQID查询*/
+			return this->QQ < b.QQ;
+		else
+			return this->QQ < b.QQ || this->GrouporDiscussID < b.GrouporDiscussID;
 	}
 };
+#endif // DEBUG
 
-using PropType = map<string, int>;
-map<SourceType, PropType> CharacterProp;
-multimap<long long, long long> ObserveGroup;
-multimap<long long, long long> ObserveDiscuss;
-string strFileLoc;
+/*map<GrSourceType, string> GroupCardList;   群卡绑定，QQID+群号->角色*/
 
 namespace Dice
 {
@@ -679,6 +708,7 @@ namespace Dice
 					boolError = true;
 					break;
 				}
+				if(!(stoi(strSkillVal) == SkillDefaultVal[strSkillName]))
 				CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)][strSkillName] = stoi(strSkillVal);
 				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) || strLowerMessage[intMsgCnt] == '|')intMsgCnt++;
 			}
@@ -1314,6 +1344,14 @@ namespace Dice
 			TempInsane(strAns);
 			dice_msg.Reply(strAns);
 		}
+		else if (strLowerMessage.substr(intMsgCnt, 2) == "tz")/*随机特性的部分*/
+		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
+			const int intcharacteristic = RandomGenerator::Randint(1, 120);
+			string CharacterReply = strNickName + "的特质：\n" + Characteristic[intcharacteristic];
+			dice_msg.Reply(CharacterReply);
+		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "li")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
@@ -1390,7 +1428,7 @@ namespace Dice
 
 				if (intTmpRollRes <= intSan)
 				{
-					strAns += " " + GlobalMsg["strSuccess"] + "\n你的San值减少" + SanCost.substr(0, SanCost.find("/"));
+					strAns += " " + GlobalMsg["strSCSuccess"] + "\n你的San值减少" + SanCost.substr(0, SanCost.find("/"));
 					if (SanCost.substr(0, SanCost.find("/")).find("d") != string::npos)
 						strAns += "=" + to_string(rdSuc.intTotal);
 					strAns += +"点,当前剩余" + to_string(max(0, intSan - rdSuc.intTotal)) + "点";
@@ -1401,7 +1439,7 @@ namespace Dice
 				}
 				else if (intTmpRollRes == 100 || (intSan < 50 && intTmpRollRes > 95))
 				{
-					strAns += " " + GlobalMsg["strFumble"] + "\n你的San值减少" + SanCost.substr(SanCost.find("/") + 1);
+					strAns += " " + GlobalMsg["strSCFumble"] + "\n你的San值减少" + SanCost.substr(SanCost.find("/") + 1);
 					// ReSharper disable once CppExpressionWithoutSideEffects
 					rdFail.Max();
 					if (SanCost.substr(SanCost.find("/") + 1).find("d") != string::npos)
@@ -1414,7 +1452,7 @@ namespace Dice
 				}
 				else
 				{
-					strAns += " " + GlobalMsg["strFailure"] + "\n你的San值减少" + SanCost.substr(SanCost.find("/") + 1);
+					strAns += " " + GlobalMsg["strSCFailure"] + "\n你的San值减少" + SanCost.substr(SanCost.find("/") + 1);
 					if (SanCost.substr(SanCost.find("/") + 1).find("d") != string::npos)
 						strAns += "=" + to_string(rdFail.intTotal);
 					strAns += +"点,当前剩余" + to_string(max(0, intSan - rdFail.intTotal)) + "点";
@@ -1483,11 +1521,11 @@ namespace Dice
 
 			if (intTmpRollRes <= intCurrentVal && intTmpRollRes <= 95)
 			{
-				strAns += " " + GlobalMsg["strFailure"] + "\n你的" + (strSkillName.empty() ? "属性或技能值" : strSkillName) + "没有变化!";
+				strAns += " " + GlobalMsg["strENFailure"] + "\n你的" + (strSkillName.empty() ? "属性或技能值" : strSkillName) + "没有变化!";
 			}
 			else
 			{
-				strAns += " " + GlobalMsg["strSuccess"] + "\n你的" + (strSkillName.empty() ? "属性或技能值" : strSkillName) + "增加1D10=";
+				strAns += " " + GlobalMsg["strENSuccess"] + "\n你的" + (strSkillName.empty() ? "属性或技能值" : strSkillName) + "增加1D10=";
 				const int intTmpRollD10 = RandomGenerator::Randint(1, 10);
 				strAns += to_string(intTmpRollD10) + "点,当前为" + to_string(intCurrentVal + intTmpRollD10) + "点";
 				if (strCurrentValue.empty())
@@ -1778,6 +1816,295 @@ namespace Dice
 				dice_msg.Reply(GlobalMsg["strRuleErr"] + strReturn);
 			}
 		}
+		else if (strLowerMessage.substr(intMsgCnt, 2) == "mo")/*备忘录*/
+		{
+			if (!MsgSend)
+			{
+				dice_msg.Reply("主循环尚未启动，请等待10秒");
+				return;
+			}
+			intMsgCnt += 2;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			string Command;
+			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !isspace(
+				static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && (Command.length() < 3))/*获取指令后的3个字符作为子指令*/
+			{
+				Command += strLowerMessage[intMsgCnt];
+				intMsgCnt++;
+			}
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))/*删除句首的\n*/
+				intMsgCnt++;
+			string strAction;
+			if (Command == "add")
+			{
+				strAction = strip(dice_msg.msg.substr(intMsgCnt));
+				if (strAction.length() == 0)
+				{
+					dice_msg.Reply("你到底想让我记录什么呀？");
+					return;
+				}
+				while (!(strAction.find("\r") == string::npos))/*\r转化为\n*/
+					strAction.replace(strAction.find("\r"), 1, "\n");
+				while (!(strAction.find("\n)") == string::npos))/*删除\n之后的)*/
+					strAction.erase(strAction.find("\n)") + 1, 1);
+				while (!(strAction.find("\n\n") == string::npos))/*删除连续的\n，只保留一个*/
+					strAction.erase(strAction.find("\n\n"), 1);
+				while (strAction[strAction.length() - 1] == '\n')/*删除句末的\n*/
+					strAction.erase(strAction.length() - 1, 1);
+				while (!(strAction.find("{memostart}") == string::npos))/*删除标志符*/
+					strAction.erase(strAction.find("{memostart}"), 11);
+				if (strAction.length() == 0)
+				{
+					dice_msg.Reply("你到底想让我记录什么呀？");
+					return;
+				}
+				if (strAction.length() > 200)
+				{
+					dice_msg.Reply("备忘录一条最多只能记录100个中文字符哦");
+					return;
+				}
+				dice_msg.Reply(MemoRecorder(dice_msg.qq_id, strAction, MemoRecoEnum::Add, 0));
+				MemoPack(true, false);
+			}
+			else if (Command == "new")
+			{
+				strAction = strip(dice_msg.msg.substr(intMsgCnt));
+				if (strAction.length() == 0)
+				{
+					dice_msg.Reply("你到底想让我记录什么呀？");
+					return;
+				}
+				while (!(strAction.find("\r") == string::npos))
+					strAction.replace(strAction.find("\r"), 1, "\n");
+				while (!(strAction.find("\n)") == string::npos))
+					strAction.erase(strAction.find("\n)") + 1, 1);
+				while (!(strAction.find("\n\n") == string::npos))
+					strAction.erase(strAction.find("\n\n"), 1);
+				while (strAction[strAction.length() - 1] == '\n')
+					strAction.erase(strAction.length() - 1, 1);
+				while (!(strAction.find("{memostart}") == string::npos))/*删除标志符*/
+					strAction.erase(strAction.find("{memostart}"), 11);
+				if (strAction.length() == 0)
+				{
+					dice_msg.Reply("你到底想让我记录什么呀？");
+					return;
+				}
+				if (strAction.length() > 200)
+				{
+					dice_msg.Reply("备忘录一条最多只能记录100个中文字符哦");
+					return;
+				}
+				dice_msg.Reply(MemoRecorder(dice_msg.qq_id, strAction, MemoRecoEnum::New, 0));
+				MemoPack(true, false);
+			}
+			else if (Command == "clr")
+			{
+				string strMemoNum;
+				while (strLowerMessage[intMsgCnt] == '0')
+					strLowerMessage.erase(intMsgCnt, 1);
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strMemoNum += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				int intMemoNum;
+				if (!strMemoNum.length())
+				{
+					intMemoNum = 0;
+				}
+				else
+				{
+					intMemoNum = stoi(strMemoNum);
+				}
+				dice_msg.Reply(MemoRecorder(dice_msg.qq_id, strAction, MemoRecoEnum::Clear,intMemoNum));
+				MemoPack(true, false);
+			}
+			else if (Command == "on")
+			{
+				string strReply = MemoAlarmControl(dice_msg.qq_id, true);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "off")
+			{
+				string strReply = MemoAlarmControl(dice_msg.qq_id, false);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "set")
+			{
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string AlarmTime;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					AlarmTime += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if ((atoi(AlarmTime.c_str()) >= 24) || AlarmTime == "")
+				{
+					string strReply = "你这么说我不知道该什么时候提醒你呀";
+					dice_msg.Reply(strReply);
+					return;
+				}
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				if (static_cast<unsigned char>(strLowerMessage[intMsgCnt]) == 'p')
+				{
+					string strReply = SetMemoAlarm(dice_msg.qq_id, dice_msg.group_id, atoi(AlarmTime.c_str()), true, true);
+					dice_msg.Reply(strReply);
+				}
+				else
+				{
+					string strReply = SetMemoAlarm(dice_msg.qq_id, dice_msg.group_id, atoi(AlarmTime.c_str()), false, true);
+					dice_msg.Reply(strReply);
+				}
+				MemoPack(true, false);
+			}
+			else if (Command == "del")
+			{
+				string strReply = SetMemoAlarm(dice_msg.qq_id, dice_msg.group_id, 0, true, false);
+				dice_msg.Reply(strReply);
+				MemoPack(true, false);
+			}
+			else
+			{
+				string strReply = strNickName;
+				strReply += MemoRecorderGet(dice_msg.qq_id);
+				dice_msg.Reply(strReply);
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 2) == "me")
+		{
+			if (dice_msg.msg_type == Dice::MsgType::Group)
+				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
+			if (dice_msg.msg_type == Dice::MsgType::Private)
+			{
+				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
+				return;
+				intMsgCnt += 2;
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string strGroupID;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strGroupID += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string strAction = strip(dice_msg.msg.substr(intMsgCnt));
+
+				for (auto i : strGroupID)
+				{
+					if (!isdigit(static_cast<unsigned char>(i)))
+					{
+						dice_msg.Reply(GlobalMsg["strGroupIDInvalid"]);
+						return;
+					}
+				}
+				if (strGroupID.empty())
+				{
+					dice_msg.Reply("你呼叫的群号是空号！请查证后再拨！");
+					return;
+				}
+				if (strAction.empty())
+				{
+					dice_msg.Reply("你到底想干什么啊？");
+					return;
+				}
+				const long long llGroupID = stoll(strGroupID);
+				if (DisabledGroup.count(llGroupID))
+				{
+					dice_msg.Reply(GlobalMsg["strDisabledErr"]);
+					return;
+				}
+				if (DisabledMEGroup.count(llGroupID))
+				{
+					dice_msg.Reply(GlobalMsg["strMEDisabledErr"]);
+					return;
+				}
+				string strReply = getName(dice_msg.qq_id, llGroupID) + strAction;
+				const int intSendRes = sendGroupMsg(llGroupID, strReply);
+				if (intSendRes < 0)
+				{
+					dice_msg.Reply(GlobalMsg["strSendErr"]);
+				}
+				else
+				{
+					dice_msg.Reply("信息已送达！");
+				}
+				}
+			else if ((dice_msg.msg_type == Dice::MsgType::Group)||(dice_msg.msg_type == Dice::MsgType::Discuss))
+			{
+				intMsgCnt += 2;
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string strAction = strLowerMessage.substr(intMsgCnt);
+				if (strAction == "on")
+				{
+					if (getGroupMemberInfo(dice_msg.group_id, dice_msg.qq_id).permissions >= 2)
+					{
+						if (DisabledMEGroup.count(dice_msg.group_id))
+						{
+							DisabledMEGroup.erase(dice_msg.group_id);
+							dice_msg.Reply("成功在本群中启用.me命令!让我们来玩过家家吧");
+						}
+						else
+						{
+							dice_msg.Reply("诶？这不是玩的正开心么？（在本群中.me命令没有被禁用！）");
+						}
+					}
+					else
+					{
+						dice_msg.Reply(GlobalMsg["strPermissionDeniedErr"]);
+					}
+					return;
+				}
+				if (strAction == "off")
+				{
+					if (getGroupMemberInfo(dice_msg.group_id, dice_msg.qq_id).permissions >= 2)
+					{
+						if (!DisabledMEGroup.count(dice_msg.group_id))
+						{
+							DisabledMEGroup.insert(dice_msg.group_id);
+							dice_msg.Reply("成功在本群中禁用.me命令！过家家禁止x");
+						}
+						else
+						{
+							dice_msg.Reply("人家才没有在玩过家家！（.me命令没有被启用！）");
+						}
+					}
+					else
+					{
+						dice_msg.Reply(GlobalMsg["strPermissionDeniedErr"]);
+					}
+					return;
+				}
+				if (DisabledMEGroup.count(dice_msg.group_id))
+				{
+					dice_msg.Reply("在本群中.me命令已被禁用！过家家禁止x");
+					return;
+				}
+				if (DisabledMEGroup.count(dice_msg.group_id))
+				{
+					dice_msg.Reply(GlobalMsg["strMEDisabledErr"]);
+					return;
+				}
+				strAction = strip(dice_msg.msg.substr(intMsgCnt));
+				if (strAction.empty())
+				{
+					dice_msg.Reply("你到底想干什么呀（动作不能为空!）");
+					return;
+				}
+				const string strReply = strNickName + strAction;
+				dice_msg.Reply(strReply);
+			}
+			else
+				{
+				return;
+				}
+		}
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "set")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
@@ -1935,6 +2262,34 @@ namespace Dice
 			if (dice_msg.msg_type == Dice::MsgType::Group)
 				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 2;
+			bool setporb = 0, isPunish = 1;/*下面是修改的部分mark(包括本行*/
+			string strpbNum;
+			int intpbNum = 1;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			if (strLowerMessage[intMsgCnt] == 'p'|| strLowerMessage[intMsgCnt] == 'b')
+			{
+				setporb = 1;
+				if (strLowerMessage[intMsgCnt] == 'b')
+					isPunish = 0;
+				intMsgCnt++;
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strpbNum += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if (strpbNum.length())
+					intpbNum = stoi(strpbNum);
+				if (intpbNum > 10)
+				{
+					dice_msg.Reply(GlobalMsg["strRollTimeExceeded"]);
+					return;
+				}
+				if (!intpbNum)
+					setporb = 0;
+			}/*上面是修改的部分mark(包括本行*/
 			string strSkillName;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
@@ -1985,16 +2340,91 @@ namespace Dice
 			{
 				intSkillVal = stoi(strSkillVal);
 			}
-			const int intD100Res = RandomGenerator::Randint(1, 100);
-			string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res) + "/" +
-				to_string(intSkillVal) + " ";
-			if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += GlobalMsg["strCriticalSuccess"];
-			else if (intD100Res > 95)strReply += GlobalMsg["strFumble"];
-			else if (intD100Res <= intSkillVal / 5)strReply += GlobalMsg["strExtremeSuccess"];
-			else if (intD100Res <= intSkillVal / 2)strReply += GlobalMsg["strHardSuccess"];
-			else if (intD100Res <= intSkillVal)strReply += GlobalMsg["strSuccess"];
-			else strReply += GlobalMsg["strFailure"];
-			
+			int intD100Res = RandomGenerator::Randint(1, 100);
+			string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res);/*下面是修改的部分mark(包括本行*/
+			if (setporb)
+			{
+				int pbRandom, single_figures;
+				string pbShow = "";
+				if (intD100Res == 100)
+					single_figures = 0;
+				else
+					single_figures = intD100Res % 10;
+				if (isPunish)
+				{
+					pbShow = "（惩罚骰：";
+					for (int pbCunt = 0; pbCunt < intpbNum; pbCunt++)
+					{
+						pbRandom = RandomGenerator::Randint(0, 9);
+						pbShow = pbShow + " " + to_string(pbRandom);
+						if ((pbRandom == 0) && (single_figures == 0))
+							pbRandom = 10;
+						pbRandom = pbRandom * 10;
+						if (pbRandom > intD100Res)
+							intD100Res = pbRandom + single_figures;
+					}
+				}
+				else
+				{
+					pbShow = "（奖励骰：";
+					for (int pbCunt = 0; pbCunt < intpbNum; pbCunt++)
+					{
+						pbRandom = RandomGenerator::Randint(0, 9);
+						pbShow = pbShow + " " + to_string(pbRandom);
+						if ((pbRandom == 0) && (single_figures == 0))
+							pbRandom = 10;
+						pbRandom = pbRandom * 10;
+						if (pbRandom < intD100Res)
+							intD100Res = pbRandom + single_figures;
+					}
+				}
+				pbShow = pbShow + "），最终结果是：" + to_string(intD100Res);
+				strReply += pbShow + "/" + to_string(intSkillVal) + " ";
+			}
+			else
+				strReply += "/" + to_string(intSkillVal) + " ";
+			int RoomRuleNum = 5;/*自定义房规部分（包括此行向下*/
+			if (RoomRule.count(dice_msg.group_id))
+				RoomRuleNum = RoomRule[dice_msg.group_id];
+			/*上面是修改的部分mark(包括本行*/
+
+			if (intD100Res <= intSkillVal)/*成功*/
+			{
+				if (intD100Res <= RoomRuleNum)
+				{
+					strReply += GlobalMsg["strCriticalSuccess"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::CriticalSuccess);
+				}
+				else if (intD100Res <= intSkillVal / 5)
+				{
+					strReply += GlobalMsg["strExtremeSuccess"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::ExttremeSuccess);
+				}
+				else if (intD100Res <= intSkillVal / 2)
+				{
+					strReply += GlobalMsg["strHardSuccess"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::HardSuccess);
+				}
+				else
+				{
+					strReply += GlobalMsg["strSuccess"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::Success);
+				}
+			}
+			else/*失败*/
+			{
+				if (intD100Res >= (101 - RoomRuleNum))
+				{
+					strReply += GlobalMsg["strFumble"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::Fumble);
+				}
+				else
+				{
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::Failure);
+					strReply += GlobalMsg["strFailure"];
+				}
+			}
+
 			if (!strReason.empty())
 			{
 				strReply = "由于" + strReason + " " + strReply;
@@ -2006,6 +2436,34 @@ namespace Dice
 			if (dice_msg.msg_type == Dice::MsgType::Group)
 				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			intMsgCnt += 2;
+				bool setporb = 0, isPunish = 1;/*下面是修改的部分mark(包括本行*/
+			string strpbNum;
+			int intpbNum = 1;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			if (strLowerMessage[intMsgCnt] == 'p' || strLowerMessage[intMsgCnt] == 'b')
+			{
+				setporb = 1;
+				if (strLowerMessage[intMsgCnt] == 'b')
+					isPunish = 0;
+				intMsgCnt++;
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strpbNum += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if (strpbNum.length())
+					intpbNum = stoi(strpbNum);
+				if (intpbNum > 10)
+				{
+					dice_msg.Reply(GlobalMsg["strRollTimeExceeded"]);
+					return;
+				}
+				if (!intpbNum)
+					setporb = 0;
+			}/*上面是修改的部分mark(包括本行*/
 			string strSkillName;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
@@ -2056,15 +2514,92 @@ namespace Dice
 			{
 				intSkillVal = stoi(strSkillVal);
 			}
-			const int intD100Res = RandomGenerator::Randint(1, 100);
-			string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res) + "/" +
-				to_string(intSkillVal) + " ";
-			if (intSkillVal != 0 && intD100Res == 1)strReply += GlobalMsg["strCriticalSuccess"];
-			else if (intD100Res == 100 || (intSkillVal < 50 && intD100Res > 95)) strReply += GlobalMsg["strFumble"];
-			else if (intD100Res <= intSkillVal / 5)strReply += GlobalMsg["strExtremeSuccess"];
-			else if (intD100Res <= intSkillVal / 2)strReply += GlobalMsg["strHardSuccess"];
-			else if (intD100Res <= intSkillVal)strReply += GlobalMsg["strSuccess"];
-			else strReply += GlobalMsg["strFailure"];
+			int intD100Res = RandomGenerator::Randint(1, 100);
+			string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res);/*下面是修改的部分mark(包括本行*/
+			if (setporb)
+			{
+				int pbRandom, single_figures;
+				string pbShow = "";
+				if (intD100Res == 100)
+					single_figures = 0;
+				else
+					single_figures = intD100Res % 10;
+				if (isPunish)
+				{
+					pbShow = "（惩罚骰：";
+					for (int pbCunt = 0; pbCunt < intpbNum; pbCunt++)
+					{
+						pbRandom = RandomGenerator::Randint(0, 9);
+						pbShow = pbShow + " " + to_string(pbRandom);
+						if ((pbRandom == 0) && (single_figures == 0))
+							pbRandom = 10;
+						pbRandom = pbRandom * 10;
+						if (pbRandom > intD100Res)
+							intD100Res = pbRandom + single_figures;
+					}
+				}
+				else
+				{
+					pbShow = "（奖励骰：";
+					for (int pbCunt = 0; pbCunt < intpbNum; pbCunt++)
+					{
+						pbRandom = RandomGenerator::Randint(0, 9);
+						pbShow = pbShow + " " + to_string(pbRandom);
+						if ((pbRandom == 0) && (single_figures == 0))
+							pbRandom = 10;
+						pbRandom = pbRandom * 10;
+						if (pbRandom < intD100Res)
+							intD100Res = pbRandom + single_figures;
+					}
+				}
+				pbShow = pbShow + "），最终结果是：" + to_string(intD100Res);
+				strReply += pbShow + "/" + to_string(intSkillVal) + " ";
+			}
+			else
+				strReply += "/" + to_string(intSkillVal) + " ";/*上面是修改的部分mark(包括本行*/
+
+			if (intD100Res <= intSkillVal)/*成功*/
+			{
+				if (intD100Res == 1)
+				{
+					strReply += GlobalMsg["strCriticalSuccess"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::CriticalSuccess);
+				}
+				else if (intD100Res <= intSkillVal / 5)
+				{
+					strReply += GlobalMsg["strExtremeSuccess"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::ExttremeSuccess);
+				}
+				else if (intD100Res <= intSkillVal / 2)
+				{
+					strReply += GlobalMsg["strHardSuccess"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::HardSuccess);
+				}
+				else
+				{
+					strReply += GlobalMsg["strSuccess"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::Success);
+				}
+			}
+			else/*失败*/
+			{
+				if ((intSkillVal >= 50) && (intD100Res == 100))
+				{
+					strReply += GlobalMsg["strFumble"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::Fumble);
+				}
+				else if ((intSkillVal < 50) && (intD100Res > 95))
+				{
+					strReply += GlobalMsg["strFumble"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::Fumble);
+
+				}
+				else
+				{
+					strReply += GlobalMsg["strFailure"];
+					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::Failure);
+				}
+			}
 			
 			if (!strReason.empty())
 			{
@@ -2374,6 +2909,153 @@ namespace Dice
 				const string strReply = strNickName + "进行了一次暗骰";
 				dice_msg.Reply(strReply);
 			}
+					else if (strLowerMessage.substr(intMsgCnt, 3) == "cat")//随机猫的分支
+		{
+			if (dice_msg.msg_type == Dice::MsgType::Private)
+			{
+				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
+				return;
+			}
+			else
+			{
+				HANDLE CathThread = CreateThread(NULL, 0, CatImage, NULL, 0, NULL);/*下载Cat图片*/
+				dice_msg.Reply(strNickName + "召唤了这样一只猫猫！");
+				dice_msg.Reply("[CQ:image,file=cat.jpg]");
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 3) == "lmt")
+		{
+			intMsgCnt += 3;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			string Command;
+			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !isspace(
+				static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+			{
+				Command += strLowerMessage[intMsgCnt];
+				intMsgCnt++;
+			}
+			if (Command == "on")
+			{
+				string strReply = LeaveGroupScanControl(true, dice_msg.qq_id);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "off")
+			{
+				string strReply = LeaveGroupScanControl(false, dice_msg.qq_id);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "add")
+			{
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string strGroupID;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strGroupID += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if (strGroupID.empty())
+				{
+					dice_msg.Reply("你呼叫的群号是空号！请查证后再拨！");
+					return;
+				}
+				const long long llGroupID = stoll(strGroupID);
+				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, true);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "rmv")
+			{
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string strGroupID;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strGroupID += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if (strGroupID.empty())
+				{
+					dice_msg.Reply("你呼叫的群号是空号！请查证后再拨！");
+					return;
+				}
+				const long long llGroupID = stoll(strGroupID);
+				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, false);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "repo")
+			{
+					string ListReport = LMTRecReport(dice_msg.qq_id);
+					dice_msg.Reply(ListReport);
+			}
+			else if (Command == "refr")
+			{
+				string RefrRepo = RefrList(dice_msg.qq_id).LMTMsg;
+				dice_msg.Reply(RefrRepo);
+			}
+			else if (Command == "check")
+			{
+				if (dice_msg.qq_id != MasterQQID)
+				{
+					dice_msg.Reply("你不是我的老板，我才不听你的");
+					return;
+				}
+				map<long long, string> GroupList = CQ::getGroupList();
+				dice_msg.Reply("当前群列表里有" + to_string(GroupList.size()) + "个群,请核对正确后再启动lts哟！");
+			}
+			else if (Command == "pack")
+			{
+				if (dice_msg.qq_id != MasterQQID)
+				{
+					dice_msg.Reply("你不是我的老板，我才不听你的");
+					return;
+				}
+				ListPack(true, false);
+				dice_msg.Reply("已备份闲置监视的数据！");
+			}
+			else
+			{
+				return;
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 8) == "tomaster")
+		{
+			intMsgCnt += 8;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			string strAction = strip(dice_msg.msg.substr(intMsgCnt));
+			if (strAction.length() >= 1)
+			{
+				dice_msg.Reply("好的，我这就告诉柴刀");
+				map<long long, string> GroupList = CQ::getGroupList();
+				strAction = "来自群" + to_string(dice_msg.group_id) + "(" + GroupList[dice_msg.group_id] + ")的" + to_string(dice_msg.qq_id) + "(" + getGroupMemberInfo(dice_msg.group_id, dice_msg.qq_id).GroupNick + ")的消息\n" + strAction;
+				CQ::sendPrivateMsg(MasterQQID, strAction);
+			}
+			else
+			{
+				dice_msg.Reply("我不知道你想说什么");
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 2) == "cs")
+		{
+			intMsgCnt += 2;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			if (intMsgCnt == strLowerMessage.length())/*.cs后面什么都没有*/
+			{
+				dice_msg.Reply("根据记录，" + strNickName + "在青木莲这里的所有的检定的结果总结如下：所有（近一周）" + CheckSumReporter(dice_msg.qq_id));
+				return;
+			}
+			if (strLowerMessage.substr(intMsgCnt, 3) == "clr")
+			{
+				if (CheckSumMap.count(dice_msg.qq_id))
+					CheckSumMap.erase(dice_msg.qq_id);
+				dice_msg.Reply("按照要求" + strNickName + "在青木莲这里的所有的检定的结果已被清除");
+			}
+		}
 		}
 		else
 		{
@@ -2513,6 +3195,14 @@ namespace Dice
 			ofstreamWelcomeMsg << it->first << " " << it->second << std::endl;
 		}
 		ofstreamWelcomeMsg.close();
+		
+		ofstream ofstreamRoomRule(strFileLoc + "RoomRule.RDconf", ios::out | ios::trunc);
+		for (auto it = RoomRule.begin(); it != RoomRule.end(); ++it)
+		{
+			ofstreamRoomRule << it->first << " " << it->second << std::endl;
+		}
+		ofstreamRoomRule.close();
+
 		DefaultDice.clear();
 		DisabledGroup.clear();
 		DisabledDiscuss.clear();
@@ -2523,6 +3213,7 @@ namespace Dice
 		ObserveGroup.clear();
 		ObserveDiscuss.clear();
 		strFileLoc.clear();
+		RoomRule.clear();
 	}
 	void EventHandler::HandleExitEvent()
 	{
@@ -2624,6 +3315,13 @@ namespace Dice
 			ofstreamWelcomeMsg << it->first << " " << it->second << std::endl;
 		}
 		ofstreamWelcomeMsg.close();
+		
+		ofstream ofstreamRoomRule(strFileLoc + "RoomRule.RDconf", ios::out | ios::trunc);
+		for (auto it = RoomRule.begin(); it != RoomRule.end(); ++it)
+		{
+			ofstreamRoomRule << it->first << " " << it->second << std::endl;
+		}
+		ofstreamRoomRule.close();
 	}
 }
 
