@@ -1522,7 +1522,7 @@ namespace Dice
 
 			if (intTmpRollRes <= intCurrentVal && intTmpRollRes <= 95)
 			{
-				strAns += " " + GlobalMsg["strENFailure"] + "\n噗，看来你的" + (strSkillName.empty() ? "这个技能" : strSkillName) + "还得再练练呀!";
+				strAns += " " + GlobalMsg["strENFailure"] + "\n唔，看来你的" + (strSkillName.empty() ? "这个技能" : strSkillName) + "还得再练练呀!";
 			}
 			else
 			{
