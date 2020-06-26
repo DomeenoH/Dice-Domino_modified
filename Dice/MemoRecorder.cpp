@@ -39,7 +39,7 @@ string MemoRecorder(long long LowerQQID, string MemoIn, MemoRecoEnum EnumSwitch,
 		}
 		else
 			MemoMap[LowerQQID] = MemoType(MemoIn);
-		return "“好!我记住啦！”多多潦草地在手里的羊皮纸上划拉几下";
+		return "682甩了甩尾巴，姑且算是在表示记住了";
 	}
 	case MemoRecoEnum::Add:
 	{
@@ -51,28 +51,28 @@ string MemoRecorder(long long LowerQQID, string MemoIn, MemoRecoEnum EnumSwitch,
 		}
 		else
 			MemoMap[LowerQQID] = MemoType(MemoIn);
-		return "“好!我记住啦！”多多在手里的羊皮纸上加上了几道爪痕";
+		return "好!我记住了嗷！”盐酸池里冒出了一串泡泡";
 	}
 	case MemoRecoEnum::Clear:
 	{
 		if (!MemoMap.count(LowerQQID))
-			return "多多又看了看手里空白的羊皮纸：“你没有让我记下什么呀——”";
+			return "“你没有让我记下什么呀——”";
 		if (ClearWhere)
 		{
 			MemoType TemMemo(MemoMap[LowerQQID]);
 			if (TemMemo.Memo.size() < ClearWhere)
-				return "“可是，可是你只记录了" + to_string(TemMemo.Memo.size()) + "条备忘呀！”多多无辜地戳戳手里的羊皮纸";
+				return "“你只记录了" + to_string(TemMemo.Memo.size()) + "条备忘嗷！”";
 			TemMemo -= ClearWhere;
 			if (TemMemo.Memo.empty())
 				MemoMap.erase(LowerQQID);
 			else
 				MemoMap[LowerQQID] = TemMemo;
-			return "“呲啦——”多多将羊皮纸划开了一道口子，“好！删掉！”";
+			return "“本大爷把这条备忘忘记了嗷！”";
 		}
 		else
 		{
 			MemoMap.erase(LowerQQID);
-			return "备忘录全部删光光啦！";
+			return "备忘录全部删光光了嗷！";
 		}
 	}
 	default:
@@ -83,9 +83,9 @@ string MemoRecorder(long long LowerQQID, string MemoIn, MemoRecoEnum EnumSwitch,
 string MemoRecorderGet(long long LowerQQID)
 {
 	if (MemoMap.count(LowerQQID))
-		return "在多多这儿记下了这样的东西——" + MemoMap[LowerQQID].Display();
+		return "在682这儿记下了这样的东西——" + MemoMap[LowerQQID].Display();
 	else
-		return "喵……好像根本就什么都没有记下嘛！";
+		return "……诶嘿，好像你没有让本大爷记下什么。";
 }
 
 void MemoAlarmScan(SYSTEMTIME NowTime)
@@ -98,7 +98,7 @@ void MemoAlarmScan(SYSTEMTIME NowTime)
 		{
 			if ((NowTime.wHour >= 0) && (NowTime.wHour < 5))
 			{
-				string MemoAlarmReply = "现在是\n" + TimeRepo + "\n多多迷迷糊糊地打着呼噜，卷在尾巴上的一张羊皮纸展开在你脚边\n" + MemoScan->second.Display();
+				string MemoAlarmReply = "现在是……\n" + TimeRepo + "\n调查员快清醒一点！！你让我现在提醒你你的笔记！\n" + MemoScan->second.Display();
 				CQ::sendPrivateMsg(MemoScan->first, MemoAlarmReply);
 				if (!MemoScan->second.isPersonal)
 				{
@@ -108,7 +108,7 @@ void MemoAlarmScan(SYSTEMTIME NowTime)
 			}
 			else if ((NowTime.wHour >= 5) && (NowTime.wHour < 8))
 			{
-				string MemoAlarmReply = "现在是\n" + TimeRepo + "\n带着新鲜的海风气味的多多将写着备忘的羊皮纸交给你，叼着一只刚捉住的鱼向你炫耀着\n" + MemoScan->second.Display();
+				string MemoAlarmReply = "早嗷嗷！！现在时间是\n" + TimeRepo + "\n你让我现在提醒你你的笔记\n" + MemoScan->second.Display();
 				CQ::sendPrivateMsg(MemoScan->first, MemoAlarmReply);
 				if (!MemoScan->second.isPersonal)
 				{
@@ -118,7 +118,7 @@ void MemoAlarmScan(SYSTEMTIME NowTime)
 			}
 			else if ((NowTime.wHour >= 8) && (NowTime.wHour < 11))
 			{
-				string MemoAlarmReply = "现在是\n" + TimeRepo + "\n多多躺在甲板上懒洋洋地晒着太阳，一旁的备忘羊皮纸上写着这样的内容\n" + MemoScan->second.Display();
+				string MemoAlarmReply = "上午好嗷！现在时间是\n" + TimeRepo + "\n你让我现在提醒你你的笔记\n" + MemoScan->second.Display();
 				CQ::sendPrivateMsg(MemoScan->first, MemoAlarmReply);
 				if (!MemoScan->second.isPersonal)
 				{
@@ -128,7 +128,7 @@ void MemoAlarmScan(SYSTEMTIME NowTime)
 			}
 			else if ((NowTime.wHour >= 11) && (NowTime.wHour < 13))
 			{
-				string MemoAlarmReply = "现在是\n" + TimeRepo + "\n多多上蹿下跳地闹着要吃肉，备忘录掉在你脚边，上面写着这样的内容\n" + MemoScan->second.Display();
+				string MemoAlarmReply = "现在是\n" + TimeRepo + "\n你什么时候来喂本大爷啊！！你让我现在提醒你你的笔记\n" + MemoScan->second.Display();
 				CQ::sendPrivateMsg(MemoScan->first, MemoAlarmReply);
 				if (!MemoScan->second.isPersonal)
 				{
@@ -138,7 +138,7 @@ void MemoAlarmScan(SYSTEMTIME NowTime)
 			}
 			else if ((NowTime.wHour >= 13) && (NowTime.wHour < 17))
 			{
-				string MemoAlarmReply = "现在是\n" + TimeRepo + "\n多多仰面瘫在瞭望台上呼呼大睡，尾巴尖卷着一张备忘羊皮纸\n" + MemoScan->second.Display();
+				string MemoAlarmReply = "肚子有点饿啊……现在时间是\n" + TimeRepo + "\n你让我现在提醒你你的笔记\n" + MemoScan->second.Display();
 				CQ::sendPrivateMsg(MemoScan->first, MemoAlarmReply);
 				if (!MemoScan->second.isPersonal)
 				{
@@ -148,7 +148,7 @@ void MemoAlarmScan(SYSTEMTIME NowTime)
 			}
 			else if ((NowTime.wHour >= 17) && (NowTime.wHour < 20))
 			{
-				string MemoAlarmReply = "现在是\n" + TimeRepo + "\n多多登上瞭望台看日落，一边有些恶趣味地大声读着这样的备忘\n" + MemoScan->second.Display();
+				string MemoAlarmReply = "现在时间是\n" + TimeRepo + "\n下班前别忘了你的笔记——\n" + MemoScan->second.Display();
 				CQ::sendPrivateMsg(MemoScan->first, MemoAlarmReply);
 				if (!MemoScan->second.isPersonal)
 				{
@@ -158,7 +158,7 @@ void MemoAlarmScan(SYSTEMTIME NowTime)
 			}
 			else //if ((NowTime.wHour >= 20) && (NowTime.wHour < 24))
 			{
-				string MemoAlarmReply = "现在是\n" + TimeRepo + "\n多多精神地四处乱窜，一张写着备忘的羊皮纸被抛在一旁，上面写着这样的内容\n" + MemoScan->second.Display();
+				string MemoAlarmReply = "现在是\n" + TimeRepo + "\n我么？本大爷不需要睡觉！你让我现在提醒你你的笔记\n" + MemoScan->second.Display();
 				CQ::sendPrivateMsg(MemoScan->first, MemoAlarmReply);
 				if (!MemoScan->second.isPersonal)
 				{
@@ -185,39 +185,39 @@ string MemoAlarmControl(long long LowerQQID, bool MemoAlarmSwitchOn)
 			else
 			{
 				MemoScanOn = true;
-				return "定时提醒已经启用了喵——";
+				return "定时提醒已经启用了嗷——";
 			}
 		}
 		else
 		{
 			if (!MemoScanOn)
 			{
-				return "定时提醒早就取消了喵——";
+				return "定时提醒早就取消了嗷——";
 			}
 			else
 			{
 				MemoScanOn = false;
-				return "定时提醒已经取消了喵——";
+				return "定时提醒已经取消了嗷——";
 			}
 		}
 	}
 	else
 	{
-		return "等什么时候你成了我的大副，或者打败我成为新的船长，再来对我发号施令吧！";
+		return "是研究员多米诺嘛？有个D级想要偷用你的权限啊！！";
 	}
 }
 
 string SetMemoAlarm(long long LowerQQID, long long GroupID, const int AlarmTime, bool IsPersional, bool AlarmOn)
 {
 	if (!MemoMap.count(LowerQQID))
-		return "“你根本就没让我记过什么东西嘛！”多多捏着手里的空羊皮纸，“让我提醒你什么，喂我吃零食嘛？”";
+		return "“你根本就没让我记过什么东西嘛！”";
 	MemoType TemMemo(GroupID, AlarmTime, IsPersional, AlarmOn);
 	TemMemo = MemoMap[LowerQQID].Memo;
 	MemoMap[LowerQQID] = TemMemo;
 	if (AlarmOn)
-		return "好喔！多多会在每天" + to_string(AlarmTime) + "点提醒你的！";
+		return "好喔！我会在每天" + to_string(AlarmTime) + "点提醒你的！";
 	else
-		return "多多把羊皮纸小心翼翼地揣进帽子里：“以后想看备忘了就主动来找我吧——”";
+		return "“那本大爷以后就不提醒你了嗷！以后想看备忘了就主动来找我吧——”";
 }
 
 void MemoPack(bool isPack, bool ClearMemory)
