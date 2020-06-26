@@ -137,7 +137,7 @@ string WhiteListControl(long long LowerQQID, long long Target_ID, bool isWriteIn
 LMTMsgType RefrList(long long LowerQQID)
 {
 	if (LowerQQID != MasterQQID)
-		return LMTMsgType(false, "你不是我的老板，这个功能只有老板能用");
+		return LMTMsgType(false, "等什么时候你成了我的大副，或者打败我成为新的船长，再来对我发号施令吧！");
 	bool isEffective = false;
 	map<long long, string> GroupList = CQ::getGroupList();
 	map<long long, long long>::iterator LMTRefr = LMTList.begin();/*闲置名单的迭代*/
@@ -228,7 +228,7 @@ void LeaveGroupScan()
 			{
 				string GroupLeaveReply = "由于已超过" + to_string(TimeDifferenceThreshold / (60 * 60 * 24)) + "天未在群" + to_string(GroupCount->first) + GroupCount->second + "中发言，已退出该群\n最后一次发言在：" + to_string(LMTList[GroupCount->first]) + "当时时间：" + to_string(Nowtime);
 				CQ::sendPrivateMsg(MasterQQID, GroupLeaveReply);
-				string GroupLeavePrompt = "由于超过" + to_string(TimeDifferenceThreshold / (60 * 60 * 24)) + "天未在贵群中发言，为了能让服务器的资源服务更多更需要的顾客，青木莲将退出贵群\n本次退群将不会记录进黑名单，若仍然需要青木莲可再次邀请";
+				string GroupLeavePrompt = "由于超过" + to_string(TimeDifferenceThreshold / (60 * 60 * 24)) + "天未在贵群中回应掷骰指令，为了能让服务器的资源服务更多更需要的用户，多多将退出贵群\n本次退群将不会记录进黑名单，若仍然需要多多可再次邀请";
 				CQ::sendGroupMsg(GroupCount->first, GroupLeavePrompt);
 				if (getGroupMemberInfo(GroupCount->first, getLoginQQ()).permissions == 3)/*退群指令*/
 					setGroupLeave(GroupCount->first, 1);
@@ -254,28 +254,28 @@ string LeaveGroupScanControl(bool SwitchMsg, long long LowerQQID)
 	if (LowerQQID == MasterQQID)/*判断是否是master*/
 		if (SwitchMsg)/*开启扫描命令*/
 			if (LMTScanOn == SwitchMsg)
-				return "被闲置监测已经开着啦，被那样对待我也不开心的哦";
+				return "被闲置监测处于启用状态喵——";
 			else
 			{
 				LMTScanOn = 1;
-				return "被闲置监测已开启，再有谁把我叫过去然后不管了，我就告诉你";
+				return "被闲置监测启用成功！";
 			}
 		else/*关闭扫描命令*/
 			if (LMTScanOn == SwitchMsg)
-				return "被闲置监测本来就没有开启哦？难得清闲";
+				return "被闲置监测处于停用状态喵——";
 			else
 			{
 				LMTScanOn = 0;
-				return "被闲置监测已关闭，先声明一下，我才没有那种爱好...";
+				return "被闲置监测停用成功！";
 			}
 	else
-		return "你不是我的老板，我才不听你的";
+		return "等什么时候你成了我的大副，或者打败我成为新的船长，再来对我发号施令吧！";
 }
 
 string LMTRecReport(long long LowerQQID)
 {
 	if (LowerQQID != MasterQQID)
-		return "你不是我的老板，这个功能只有老板能用";
+		return "等什么时候你成了我的大副，或者打败我成为新的船长，再来对我发号施令吧！";
 	string ReportReply = "闲置白名单上的群有：";
 	set<long long>::iterator WhiteListCount = LMTWhiteList.begin();
 	map<long long, string> GroupList = CQ::getGroupList();
