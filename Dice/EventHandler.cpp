@@ -28,6 +28,17 @@
 #include "DiceNetwork.h"
 #include "eventHandler.h"
 #include "RDConstant.h"
+
+#include "SpecialFunctionMap.h"
+#include "MasterData.h"
+#include "Constchar_to_LPCWSTR.h"/*const char -> LPSWSTR*/
+#include "CDMainCirculate.h"/*总循环控制*/
+#include "LastMsgTimeRecorder.h"/*超时离群检测*/
+#include "MemoRecorder.h"/*备忘录*/
+#include "RandomImage.h"/*随机图片*/
+#include "CDs_Sum_Function.h"/*总结*/
+#include "CDs_UpertoLower.h"
+
 /*
 TODO:
 1. en可变成长检定
