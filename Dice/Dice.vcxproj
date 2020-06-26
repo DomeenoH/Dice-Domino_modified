@@ -208,6 +208,10 @@
     <ClCompile Include="..\CQSDKCPP\CQstream.cpp" />
     <ClCompile Include="..\CQSDKCPP\CQTools.cpp" />
     <ClCompile Include="..\CQSDKCPP\Unpack.cpp" />
+    <ClCompile Include="CDMainCirculate.cpp" />
+    <ClCompile Include="CDs_Sum_Function.cpp" />
+    <ClCompile Include="CDs_UpertoLower.cpp" />
+    <ClCompile Include="Constchar_to_LPCWSTR.cpp" />
     <ClCompile Include="CustomMsg.cpp" />
     <ClCompile Include="Dice.cpp" />
     <ClCompile Include="DiceMsg.cpp" />
@@ -220,12 +224,18 @@
     <ClCompile Include="GetRule.cpp" />
     <ClCompile Include="GlobalVar.cpp" />
     <ClCompile Include="InitList.cpp" />
+    <ClCompile Include="LastTimeMsgRecorder.cpp" />
+    <ClCompile Include="MasterData.cpp" />
+    <ClCompile Include="MemoRecorder.cpp" />
     <ClCompile Include="MsgFormat.cpp" />
     <ClCompile Include="NameGenerator.cpp" />
     <ClCompile Include="NameStorage.cpp" />
     <ClCompile Include="RandomGenerator.cpp" />
+    <ClCompile Include="RandomImage.cpp" />
     <ClCompile Include="RD.cpp" />
+    <ClCompile Include="SpecialFunctionMap.cpp" />
     <ClCompile Include="StorageBase.cpp" />
+    <ClCompile Include="TemClean.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CQSDK\bufstream.h" />
@@ -250,6 +260,10 @@
     <ClInclude Include="..\CQSDK\CQTools.h" />
     <ClInclude Include="..\CQSDK\Unpack.h" />
     <ClInclude Include="APPINFO.h" />
+    <ClInclude Include="CDMainCirculate.h" />
+    <ClInclude Include="CDs_Sum_Function.h" />
+    <ClInclude Include="CDs_UpertoLower.h" />
+    <ClInclude Include="Constchar_to_LPCWSTR.h" />
     <ClInclude Include="CustomMsg.h" />
     <ClInclude Include="DiceMsg.h" />
     <ClInclude Include="DiceMsgSend.h" />
@@ -261,13 +275,19 @@
     <ClInclude Include="GlobalVar.h" />
     <ClInclude Include="InitList.h" />
     <ClInclude Include="json.hpp" />
+    <ClInclude Include="LastMsgTimeRecorder.h" />
+    <ClInclude Include="MasterData.h" />
+    <ClInclude Include="MemoRecorder.h" />
     <ClInclude Include="MsgFormat.h" />
     <ClInclude Include="NameGenerator.h" />
     <ClInclude Include="NameStorage.h" />
     <ClInclude Include="RandomGenerator.h" />
+    <ClInclude Include="RandomImage.h" />
     <ClInclude Include="RD.h" />
     <ClInclude Include="RDConstant.h" />
+    <ClInclude Include="SpecialFunctionMap.h" />
     <ClInclude Include="StorageBase.h" />
+    <ClInclude Include="TemClean.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="CQP.lib" />

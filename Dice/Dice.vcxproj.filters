@@ -96,6 +96,36 @@
     <ClCompile Include="EventHandler.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CDMainCirculate.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CDs_Sum_Function.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CDs_UpertoLower.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Constchar_to_LPCWSTR.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LastTimeMsgRecorder.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoRecorder.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomImage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SpecialFunctionMap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TemClean.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="APPINFO.h">
@@ -216,6 +246,36 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="EventHandler.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CDMainCirculate.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CDs_Sum_Function.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CDs_UpertoLower.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Constchar_to_LPCWSTR.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LastMsgTimeRecorder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MasterData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoRecorder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomImage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SpecialFunctionMap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TemClean.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

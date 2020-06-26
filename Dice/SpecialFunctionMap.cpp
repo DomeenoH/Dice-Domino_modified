@@ -1,4 +1,5 @@
 ﻿#include <map>
+#include <string>
 #include "SpecialFunctionMap.h"
 
 std::map<const int, CocktailType> CocktailList
