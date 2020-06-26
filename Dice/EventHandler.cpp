@@ -1901,7 +1901,7 @@ namespace Dice
 			}
 			else if (Command == "hlp")
 		{
-			string strReply = ".rmd	显示备忘内容\n.rmdhlp	显示备忘帮助\n.rmdnew [内容]	新建一个备忘（丢失以前的内容）\n.rmdadd [内容]	在备忘中增加新的内容\n.rmdclr [序号]	删除已记录的备忘(不加序号则全部删除)\n.rmdset [1-24整数]	定时提醒\n.rmddel	删除定时提醒";
+			string strReply = "★多多的备忘录说明★\n.rmd	显示备忘内容\n.rmdhlp	显示备忘帮助\n.rmdnew [内容]	新建一个备忘（丢失以前的内容）\n.rmdadd [内容]	在备忘中增加新的内容\n.rmdclr [序号]	删除已记录的备忘(不加序号则全部删除)\n.rmdset [1-24整数]	定时提醒\n.rmddel	删除定时提醒";
 		dice_msg.Reply(strReply);
 		}
 			else if (Command == "clr")
