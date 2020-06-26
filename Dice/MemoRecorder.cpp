@@ -210,7 +210,7 @@ string MemoAlarmControl(long long LowerQQID, bool MemoAlarmSwitchOn)
 string SetMemoAlarm(long long LowerQQID, long long GroupID, const int AlarmTime, bool IsPersional, bool AlarmOn)
 {
 	if (!MemoMap.count(LowerQQID))
-		return "您还没在这里设置过备忘";
+		return "“你根本就没让我记过什么东西嘛！”多多捏着手里的空羊皮纸，“让我提醒你什么，喂我吃零食嘛？”";
 	MemoType TemMemo(GroupID, AlarmTime, IsPersional, AlarmOn);
 	TemMemo = MemoMap[LowerQQID].Memo;
 	MemoMap[LowerQQID] = TemMemo;
