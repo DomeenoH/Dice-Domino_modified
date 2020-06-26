@@ -1987,8 +1987,8 @@ namespace Dice
 				LastMsgTimeRecorder(dice_msg.group_id);/*最后发言时间记录模块*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
-				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
-				return;
+				//dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
+				//return;
 				intMsgCnt += 2;
 				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 					intMsgCnt++;
@@ -2340,6 +2340,153 @@ namespace Dice
 				}
 				return;
 							}
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 3) == "cat")//随机猫的分支
+		{
+			if (dice_msg.msg_type == Dice::MsgType::Private)
+			{
+				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
+				return;
+			}
+			else
+			{
+				HANDLE CathThread = CreateThread(NULL, 0, CatImage, NULL, 0, NULL);/*下载Cat图片*/
+				dice_msg.Reply(strNickName + "召唤了这样一只猫猫——没我好看！！");
+				dice_msg.Reply("[CQ:image,file=cat.jpg]");
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 3) == "lmt")
+		{
+			intMsgCnt += 3;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			string Command;
+			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !isspace(
+				static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+			{
+				Command += strLowerMessage[intMsgCnt];
+				intMsgCnt++;
+			}
+			if (Command == "on")
+			{
+				string strReply = LeaveGroupScanControl(true, dice_msg.qq_id);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "off")
+			{
+				string strReply = LeaveGroupScanControl(false, dice_msg.qq_id);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "add")
+			{
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string strGroupID;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strGroupID += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if (strGroupID.empty())
+				{
+					dice_msg.Reply("这个群号不对劲！多多找不到！");
+					return;
+				}
+				const long long llGroupID = stoll(strGroupID);
+				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, true);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "rmv")
+			{
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string strGroupID;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strGroupID += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if (strGroupID.empty())
+				{
+					dice_msg.Reply("这个群号不对劲！多多找不到！");
+					return;
+				}
+				const long long llGroupID = stoll(strGroupID);
+				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, false);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "repo")
+			{
+					string ListReport = LMTRecReport(dice_msg.qq_id);
+					dice_msg.Reply(ListReport);
+			}
+			else if (Command == "refr")
+			{
+				string RefrRepo = RefrList(dice_msg.qq_id).LMTMsg;
+				dice_msg.Reply(RefrRepo);
+			}
+			else if (Command == "check")
+			{
+				if (dice_msg.qq_id != MasterQQID)
+				{
+					dice_msg.Reply("等什么时候你成了我的大副，或者打败我成为新的船长，再来对我发号施令吧！");
+					return;
+				}
+				map<long long, string> GroupList = CQ::getGroupList();
+				dice_msg.Reply("当前群列表里有" + to_string(GroupList.size()) + "个群,请核对正确后再启动lts哟！");
+			}
+			else if (Command == "pack")
+			{
+				if (dice_msg.qq_id != MasterQQID)
+				{
+					dice_msg.Reply("等什么时候你成了我的大副，或者打败我成为新的船长，再来对我发号施令吧！");
+					return;
+				}
+				ListPack(true, false);
+				dice_msg.Reply("已备份闲置监视的数据！");
+			}
+			else
+			{
+				return;
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 8) == "tomaster")
+		{
+			intMsgCnt += 8;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			string strAction = strip(dice_msg.msg.substr(intMsgCnt));
+			if (strAction.length() >= 1)
+			{
+				dice_msg.Reply("好喔，我这就告诉多米诺——");
+				map<long long, string> GroupList = CQ::getGroupList();
+				strAction = "来自群" + to_string(dice_msg.group_id) + "(" + GroupList[dice_msg.group_id] + ")的" + to_string(dice_msg.qq_id) + "(" + getGroupMemberInfo(dice_msg.group_id, dice_msg.qq_id).GroupNick + ")的消息\n" + strAction;
+				CQ::sendPrivateMsg(MasterQQID, strAction);
+			}
+			else
+			{
+				dice_msg.Reply("“唔……？要说什么你告诉我嘛！”");
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 2) == "cs")
+		{
+			intMsgCnt += 2;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			if (intMsgCnt == strLowerMessage.length())/*.cs后面什么都没有*/
+			{
+				dice_msg.Reply(strNickName + "在多多这里的所有的检定的结果总结如下,四舍五入还是蛮欧的嘛：所有（近一周）" + CheckSumReporter(dice_msg.qq_id));
+				return;
+			}
+			if (strLowerMessage.substr(intMsgCnt, 3) == "clr")
+			{
+				if (CheckSumMap.count(dice_msg.qq_id))
+					CheckSumMap.erase(dice_msg.qq_id);
+				dice_msg.Reply("好喔！" + strNickName + "在多多这里的所有的检定的结果都清除啦");
+			}
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ra")
 		{
@@ -2993,153 +3140,6 @@ namespace Dice
 				const string strReply = strNickName + "偷偷骰了一个……哇噢噢！";
 				dice_msg.Reply(strReply);
 			}
-					else if (strLowerMessage.substr(intMsgCnt, 3) == "cat")//随机猫的分支
-		{
-			if (dice_msg.msg_type == Dice::MsgType::Private)
-			{
-				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
-				return;
-			}
-			else
-			{
-				HANDLE CathThread = CreateThread(NULL, 0, CatImage, NULL, 0, NULL);/*下载Cat图片*/
-				dice_msg.Reply(strNickName + "召唤了这样一只猫猫——没我好看！！");
-				dice_msg.Reply("[CQ:image,file=cat.jpg]");
-			}
-			return;
-		}
-		else if (strLowerMessage.substr(intMsgCnt, 3) == "lmt")
-		{
-			intMsgCnt += 3;
-			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				intMsgCnt++;
-			string Command;
-			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !isspace(
-				static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-			{
-				Command += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-			if (Command == "on")
-			{
-				string strReply = LeaveGroupScanControl(true, dice_msg.qq_id);
-				dice_msg.Reply(strReply);
-			}
-			else if (Command == "off")
-			{
-				string strReply = LeaveGroupScanControl(false, dice_msg.qq_id);
-				dice_msg.Reply(strReply);
-			}
-			else if (Command == "add")
-			{
-				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-					intMsgCnt++;
-				string strGroupID;
-				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				{
-					strGroupID += strLowerMessage[intMsgCnt];
-					intMsgCnt++;
-				}
-				if (strGroupID.empty())
-				{
-					dice_msg.Reply("这个群号不对劲！多多找不到！");
-					return;
-				}
-				const long long llGroupID = stoll(strGroupID);
-				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, true);
-				dice_msg.Reply(strReply);
-			}
-			else if (Command == "rmv")
-			{
-				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-					intMsgCnt++;
-				string strGroupID;
-				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				{
-					strGroupID += strLowerMessage[intMsgCnt];
-					intMsgCnt++;
-				}
-				if (strGroupID.empty())
-				{
-					dice_msg.Reply("这个群号不对劲！多多找不到！");
-					return;
-				}
-				const long long llGroupID = stoll(strGroupID);
-				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, false);
-				dice_msg.Reply(strReply);
-			}
-			else if (Command == "repo")
-			{
-					string ListReport = LMTRecReport(dice_msg.qq_id);
-					dice_msg.Reply(ListReport);
-			}
-			else if (Command == "refr")
-			{
-				string RefrRepo = RefrList(dice_msg.qq_id).LMTMsg;
-				dice_msg.Reply(RefrRepo);
-			}
-			else if (Command == "check")
-			{
-				if (dice_msg.qq_id != MasterQQID)
-				{
-					dice_msg.Reply("等什么时候你成了我的大副，或者打败我成为新的船长，再来对我发号施令吧！");
-					return;
-				}
-				map<long long, string> GroupList = CQ::getGroupList();
-				dice_msg.Reply("当前群列表里有" + to_string(GroupList.size()) + "个群,请核对正确后再启动lts哟！");
-			}
-			else if (Command == "pack")
-			{
-				if (dice_msg.qq_id != MasterQQID)
-				{
-					dice_msg.Reply("等什么时候你成了我的大副，或者打败我成为新的船长，再来对我发号施令吧！");
-					return;
-				}
-				ListPack(true, false);
-				dice_msg.Reply("已备份闲置监视的数据！");
-			}
-			else
-			{
-				return;
-			}
-			return;
-		}
-		else if (strLowerMessage.substr(intMsgCnt, 8) == "tomaster")
-		{
-			intMsgCnt += 8;
-			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				intMsgCnt++;
-			string strAction = strip(dice_msg.msg.substr(intMsgCnt));
-			if (strAction.length() >= 1)
-			{
-				dice_msg.Reply("好喔，我这就告诉多米诺——");
-				map<long long, string> GroupList = CQ::getGroupList();
-				strAction = "来自群" + to_string(dice_msg.group_id) + "(" + GroupList[dice_msg.group_id] + ")的" + to_string(dice_msg.qq_id) + "(" + getGroupMemberInfo(dice_msg.group_id, dice_msg.qq_id).GroupNick + ")的消息\n" + strAction;
-				CQ::sendPrivateMsg(MasterQQID, strAction);
-			}
-			else
-			{
-				dice_msg.Reply("“唔……？要说什么你告诉我嘛！”");
-			}
-			return;
-		}
-		else if (strLowerMessage.substr(intMsgCnt, 2) == "cs")
-		{
-			intMsgCnt += 2;
-			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				intMsgCnt++;
-			if (intMsgCnt == strLowerMessage.length())/*.cs后面什么都没有*/
-			{
-				dice_msg.Reply(strNickName + "在多多这里的所有的检定的结果总结如下,四舍五入还是蛮欧的嘛：所有（近一周）" + CheckSumReporter(dice_msg.qq_id));
-				return;
-			}
-			if (strLowerMessage.substr(intMsgCnt, 3) == "clr")
-			{
-				if (CheckSumMap.count(dice_msg.qq_id))
-					CheckSumMap.erase(dice_msg.qq_id);
-				dice_msg.Reply("好喔！" + strNickName + "在多多这里的所有的检定的结果都清除啦");
-			}
-		}
 		}
 		else
 		{
