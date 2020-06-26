@@ -79,7 +79,7 @@ std::map<const std::string, std::string> GlobalMsg
 	{"strValueErr", "掷骰表达式输入错误!"},
 	{"strInputErr", "命令或掷骰表达式输入错误!"},
 	{"strUnknownErr", "发生了未知错误!"},
-		{"strMEDisabledErr", "已禁用.me命令!过家家禁止x"},
+	{"strMEDisabledErr", "已禁用.me命令!过家家禁止x"},
 	{"strGroupIDInvalid", "查无此群!请查证后再拨!"},
 	{"strSendErr", "消息发送失败！邮件被邮差吃掉了！"},
 	{"strDisabledErr", "不让咱说话还想让咱干活?(命令无法执行:青木莲已在此群中被关闭!)"},
@@ -152,3 +152,4 @@ std::map<const std::string, std::string> GlobalMsg
 	{"strRoomRuleClearErr","未设置房规，无需还原"},
 	{"strRoomRuleSet","设置房规成功！"},
 	{"strHelpMsg" , Dice_Short_Ver + "\n" + "更多信息请扫描二维码——[CQ:image,file=HELP.jpg]"}
+};
