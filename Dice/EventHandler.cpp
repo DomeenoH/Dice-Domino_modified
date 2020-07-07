@@ -679,7 +679,7 @@ namespace Dice
 				}
 				else if (!strSkillName.length())/*mark*/
 				{
-					string strReply = "嗷…" + strNickName + "在本大爷这儿记下了这样的属性——";
+					string strReply = "嗷…" + strNickName + "在本大爷这儿记下了这样的属性——\n";
 					map<string, int> AllSkill = CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)];
 					if (AllSkill.empty())
 					{
