@@ -151,5 +151,5 @@ std::map<const std::string, std::string> GlobalMsg
 	{"strRoomRuleClear","已将房规还原为默认值啦！（大成功1-5，大失败96-100）"},
 	{"strRoomRuleClearErr","现在没有设置房规喔——"},
 	{"strRoomRuleSet","房规设置成功了喵！"},
-	{"strHelpMsg" , Dice_Short_Ver + "\n" + "请使用!dismiss 2749573030命令让多多自动退群喔！\n禁言和踢群会被拉黑，请务必注意——\n更多信息请扫描二维码——[CQ:image,file=HELP.jpg]"}
+	{"strHelpMsg" , Dice_Short_Ver + "\n" + "更多信息请扫描二维码——[CQ:image,file=HELP.jpg]"}
 };
