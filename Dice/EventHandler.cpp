@@ -679,11 +679,11 @@ namespace Dice
 				}
 				else if (!strSkillName.length())/*mark*/
 				{
-					string strReply = "根据客户档案上的记录，" + strNickName + "的属性如下：";
-					map<string, int> AllSkill = CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)];
-					if (AllSkill.empty())
-					{
-						dice_msg.Reply(strNickName + "好像没有录入过和默认值不一样的信息诶");
+						string strReply = "多多从帽子里抽出一卷皱巴巴的羊皮纸：“" + strNickName + "都有这样的一些属性喵——”";
+						map<string, int> AllSkill = CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)];
+						if (AllSkill.empty())
+						{
+							dice_msg.Reply(strNickName + "好像没有录入过和默认值不一样的信息喵——");
 						return;
 					}
 					map<string, int>::iterator SkillCount = AllSkill.begin();
