@@ -665,41 +665,40 @@ namespace Dice
 					strSkillName += strLowerMessage[intMsgCnt];
 					intMsgCnt++;
 				}
-					if (SkillNameReplace.count(strSkillName))strSkillName = SkillNameReplace[strSkillName];
-					if (CharacterProp.count(SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)) && CharacterProp[SourceType(
-						dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)].count(strSkillName))
+				if (SkillNameReplace.count(strSkillName))
+					strSkillName = SkillNameReplace[strSkillName];
+				else if (CharacterProp.count(SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)) 
+					&& CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)].count(strSkillName))
+				{
+					dice_msg.Reply(format(GlobalMsg["strProp"], {strNickName, strSkillName, 
+						to_string(CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)][strSkillName])}));
+				}
+				else if (SkillDefaultVal.count(strSkillName))
+				{
+					dice_msg.Reply(format(GlobalMsg["strProp"], { strNickName, strSkillName, to_string(SkillDefaultVal[strSkillName]) }));
+				}
+				else if (!strSkillName.length())/*mark*/
+				{
+					string strReply = "根据客户档案上的记录，" + strNickName + "的属性如下：";
+					map<string, int> AllSkill = CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)];
+					if (AllSkill.empty())
 					{
-						dice_msg.Reply(format(GlobalMsg["strProp"], {
-							strNickName, strSkillName,
-							to_string(CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)][strSkillName])
-							}));
+						dice_msg.Reply(strNickName + "好像没有录入过和默认值不一样的信息诶");
+						return;
 					}
-					else if (SkillDefaultVal.count(strSkillName))
+					map<string, int>::iterator SkillCount = AllSkill.begin();
+					while (!(SkillCount == AllSkill.end()))
 					{
-						dice_msg.Reply(format(GlobalMsg["strProp"], { strNickName, strSkillName, to_string(SkillDefaultVal[strSkillName]) }));
+						strReply = strReply + " " + SkillCount->first + to_string(SkillCount->second);
+						SkillCount++;
 					}
-					else if(!strSkillName.length())/*mark*/
-					{
-						string strReply = "根据客户档案上的记录，" + strNickName + "的属性如下：";
-						map<string, int> AllSkill = CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)];
-						if (AllSkill.empty())
-						{
-							dice_msg.Reply(strNickName + "好像没有录入过和默认值不一样的信息诶");
-							return;
-						}
-						map<string, int>::iterator SkillCount = AllSkill.begin();
-						while (!(SkillCount == AllSkill.end()))
-						{
-							strReply = strReply + " " + SkillCount->first + to_string(SkillCount->second);
-							SkillCount++;
-						}
-						dice_msg.Reply(strReply);
-					}
-					else
-					{
-						dice_msg.Reply(GlobalMsg["strPropNotFound"]);
-					}
-					return;
+					dice_msg.Reply(strReply);
+				}
+				else
+				{
+					dice_msg.Reply(GlobalMsg["strPropNotFound"]);
+				}
+				return;
 			}
 			bool boolError = false;
 			while (intMsgCnt != strLowerMessage.length())
