@@ -23,7 +23,7 @@ using namespace CQ;
 bool LMTScanOn = 0;
 long long TimeDifferenceThreshold = 7 * 24 * 60 * 60,/*闲置退群时长阈值（秒）*/
 	   	  SoonReportTime = 60 * 60 * 24;/*因闲置退群预警时间（秒，仅主人可见）*/
-int RepoDayThreshold = 10,/*可查询的闲置时长阈值（天）*/
+int RepoDayThreshold = 3,/*可查询的闲置时长阈值（天）*/
 	ScanInterval = 60 * 60 * 1000,/*超时退群扫描间隔/毫秒*/
 	OrderInterval = 60 * 1000;/*扫描停止命令的最大响应间隔/毫秒*/
 
