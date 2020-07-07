@@ -228,7 +228,7 @@ void LeaveGroupScan()
 			{
 				string GroupLeaveReply = "由于已超过" + to_string(TimeDifferenceThreshold / (60 * 60 * 24)) + "天未在群" + to_string(GroupCount->first) + GroupCount->second + "中发言，已退出该群\n最后一次发言在：" + to_string(LMTList[GroupCount->first]) + "当时时间：" + to_string(Nowtime);
 				CQ::sendPrivateMsg(MasterQQID, GroupLeaveReply);
-				string GroupLeavePrompt = "由于超过" + to_string(TimeDifferenceThreshold / (60 * 60 * 24)) + "天未在贵群中回应掷骰指令，为了能让服务器的资源服务更多更需要的用户，682将退出贵群\n本次退群将不会记录进黑名单，若仍然需要多多可再次邀请";
+				string GroupLeavePrompt = "由于超过" + to_string(TimeDifferenceThreshold / (60 * 60 * 24)) + "天未在贵群中回应掷骰指令，为了能让服务器的资源服务更多更需要的用户，682将退出贵群\n本次退群将不会记录进黑名单，若仍然需要682可再次邀请";
 				CQ::sendGroupMsg(GroupCount->first, GroupLeavePrompt);
 				if (getGroupMemberInfo(GroupCount->first, getLoginQQ()).permissions == 3)/*退群指令*/
 					setGroupLeave(GroupCount->first, 1);
