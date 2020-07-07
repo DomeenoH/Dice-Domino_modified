@@ -2367,21 +2367,6 @@ namespace Dice
 				return;
 							}
 		}
-		else if (strLowerMessage.substr(intMsgCnt, 3) == "cat")//随机猫的分支
-		{
-			if (dice_msg.msg_type == Dice::MsgType::Private)
-			{
-				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
-				return;
-			}
-			else
-			{
-				HANDLE CathThread = CreateThread(NULL, 0, CatImage, NULL, 0, NULL);/*下载Cat图片*/
-				dice_msg.Reply(strNickName + "召唤了这样一只猫猫——没我好看！！");
-				dice_msg.Reply("[CQ:image,file=cat.jpg]");
-			}
-			return;
-		}
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "lmt")
 		{
 			intMsgCnt += 3;
