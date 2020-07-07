@@ -678,6 +678,23 @@ namespace Dice
 					{
 						dice_msg.Reply(format(GlobalMsg["strProp"], { strNickName, strSkillName, to_string(SkillDefaultVal[strSkillName]) }));
 					}
+										else if(!strSkillName.length())/*mark*/
+					{
+						string strReply = "嗷…" + strNickName + "在本大爷这儿记录了这样的属性——";
+						map<string, int> AllSkill = CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)];
+						if (AllSkill.empty())
+						{
+							dice_msg.Reply(strNickName + "好像没有录入过和默认值不一样的信息嗷——");
+							return;
+						}
+						map<string, int>::iterator SkillCount = AllSkill.begin();
+						while (!(SkillCount == AllSkill.end()))
+						{
+							strReply = strReply + " " + SkillCount->first + to_string(SkillCount->second);
+							SkillCount++;
+						}
+						dice_msg.Reply(strReply);
+					}
 					else
 					{
 						dice_msg.Reply(GlobalMsg["strPropNotFound"]);
