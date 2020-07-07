@@ -679,7 +679,7 @@ namespace Dice
 				}
 				else if (!strSkillName.length())/*mark*/
 				{
-						string strReply = "多多从帽子里抽出一卷皱巴巴的羊皮纸：“" + strNickName + "都有这样的一些属性喵——”";
+						string strReply = "多多从帽子里抽出一卷皱巴巴的羊皮纸：“" + strNickName + "都有这样的一些属性喵——”\n";
 						map<string, int> AllSkill = CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)];
 						if (AllSkill.empty())
 						{
