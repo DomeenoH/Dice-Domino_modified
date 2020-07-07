@@ -4,7 +4,7 @@
 #include "Unpack.h"
 #include "CQEVE_GroupMsg.h"
 #include "CQTools.h"
-#include "D:\Dice!\NEW\Dice!\Dice-Domino_modified\Dice\MasterData.h"
+
 using namespace CQ;
 using namespace std;
 int lasterr;
@@ -253,12 +253,8 @@ int CQ::setFatal(const char* ErrorMsg) { return lasterr = CQ_setFatal(getAuthCod
 //取群成员信息 (支持缓存)
 GroupMemberInfo CQ::getGroupMemberInfo(const long long GroupID, const long long QQID, const CQBOOL disableCache)
 {
-	GroupMemberInfo Tem = GroupMemberInfo(CQ_getGroupMemberInfoV2(getAuthCode(), GroupID, QQID, disableCache));
-	if (Tem.QQID == MasterQQID)
-	{
-		Tem.permissions = 4;/*master权限*/
-	}
-	return Tem;
+	return GroupMemberInfo(CQ_getGroupMemberInfoV2(getAuthCode(), GroupID, QQID, disableCache));
+}
 
 //取陌生人信息 (支持缓存)
 StrangerInfo CQ::getStrangerInfo(const long long QQID, const CQBOOL DisableCache)
