@@ -665,6 +665,7 @@ namespace Dice
 					strSkillName += strLowerMessage[intMsgCnt];
 					intMsgCnt++;
 				}
+<<<<<<< HEAD
 				if (SkillNameReplace.count(strSkillName))
 					strSkillName = SkillNameReplace[strSkillName];
 				else if (CharacterProp.count(SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)) 
@@ -688,6 +689,22 @@ namespace Dice
 					}
 					map<string, int>::iterator SkillCount = AllSkill.begin();
 					while (!(SkillCount == AllSkill.end()))
+=======
+					if (SkillNameReplace.count(strSkillName))strSkillName = SkillNameReplace[strSkillName];
+					if (CharacterProp.count(SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)) && CharacterProp[SourceType(
+						dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)].count(strSkillName))
+					{
+						dice_msg.Reply(format(GlobalMsg["strProp"], {
+							strNickName, strSkillName,
+							to_string(CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)][strSkillName])
+							}));
+					}
+					else if (SkillDefaultVal.count(strSkillName))
+					{
+						dice_msg.Reply(format(GlobalMsg["strProp"], { strNickName, strSkillName, to_string(SkillDefaultVal[strSkillName]) }));
+					}
+					else
+>>>>>>> parent of 60ec926... stshow
 					{
 						strReply = strReply + " " + SkillCount->first + to_string(SkillCount->second);
 						SkillCount++;
