@@ -322,6 +322,17 @@ namespace Dice
 			}
 		}
 		ifstreamWelcomeMsg.close();
+				ifstream ifstreamRoonRule(strFileLoc + "RoomRule.RDconf");
+		if (ifstreamRoonRule)
+		{
+			long long GroupID;
+			int RoonRuleNum;
+			while (ifstreamRoonRule >> GroupID >> RoonRuleNum)
+			{
+				RoomRule[GroupID] = RoonRuleNum;
+			}
+		}
+		ifstreamRoonRule.close();
 		ilInitList = make_unique<Initlist>(strFileLoc + "INIT.DiceDB");
 		ifstream ifstreamCustomMsg(strFileLoc + "CustomMsg.json");
 		if (ifstreamCustomMsg)
@@ -352,8 +363,7 @@ namespace Dice
 			intMsgCnt++;
 		block_msg = true;
 		const string strNickName = getName(dice_msg.qq_id, dice_msg.group_id);
-		string strLowerMessage = dice_msg.msg;
-		transform(strLowerMessage.begin(), strLowerMessage.end(), strLowerMessage.begin(), [](unsigned char c) { return tolower(c); });
+		string strLowerMessage = tolower_inclideChinese(dice_msg.msg);
 		if (strLowerMessage.substr(intMsgCnt, 3) == "bot")
 		{
 			intMsgCnt += 3;
