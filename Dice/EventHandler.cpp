@@ -31,21 +31,21 @@
 
 #include "MasterData.h"
 #include "Constchar_to_LPCWSTR.h"/*const char -> LPSWSTR*/
-#include "CDMainCirculate.h"/*×ÜÑ­»·¿ØÖÆ*/
-#include "LastMsgTimeRecorder.h"/*³¬Ê±ÀëÈº¼ì²â*/
-#include "MemoRecorder.h"/*±¸ÍüÂ¼*/
-#include "RandomImage.h"/*Ëæ»úÍ¼Æ¬*/
-#include "CDs_Sum_Function.h"/*×Ü½á*/
+#include "CDMainCirculate.h"/*æ€»å¾ªç¯æ§åˆ¶*/
+#include "LastMsgTimeRecorder.h"/*è¶…æ—¶ç¦»ç¾¤æ£€æµ‹*/
+#include "MemoRecorder.h"/*å¤‡å¿˜å½•*/
+#include "RandomImage.h"/*éšæœºå›¾ç‰‡*/
+#include "CDs_Sum_Function.h"/*æ€»ç»“*/
 #include "CDs_UpertoLower.h"
 #include "SpecialFunctionMap.h"
 
 /*
 TODO:
-1. en¿É±ä³É³¤¼ì¶¨
-2. st¶àÈËÎï¿¨
-3. stÈËÎï¿¨°ó¶¨
-4. stÊôĞÔÕ¹Ê¾£¬È«ÊôĞÔÕ¹Ê¾ÒÔ¼°ÅÅĞò
-5. helpÓÅ»¯
+1. enå¯å˜æˆé•¿æ£€å®š
+2. stå¤šäººç‰©å¡
+3. stäººç‰©å¡ç»‘å®š
+4. stå±æ€§å±•ç¤ºï¼Œå…¨å±æ€§å±•ç¤ºä»¥åŠæ’åº
+5. helpä¼˜åŒ–
 */
 
 using namespace std;
@@ -103,7 +103,7 @@ std::string strip(std::string origin)
 			origin.erase(origin.begin());
 			flag = true;
 		}
-		else if (origin.substr(0, 2) == "£¡" || origin.substr(0, 2) == "¡£")
+		else if (origin.substr(0, 2) == "ï¼" || origin.substr(0, 2) == "ã€‚")
 		{
 			origin.erase(origin.begin());
 			origin.erase(origin.begin());
@@ -115,26 +115,26 @@ std::string strip(std::string origin)
 
 std::string getName(long long QQ, long long GroupID = 0)
 {
-	// Èº»òÌÖÂÛ×é
+	// ç¾¤æˆ–è®¨è®ºç»„
 	if (GroupID)
 	{
-		// ÈºÄÚêÇ³Æ
+		// ç¾¤å†…æ˜µç§°
 		if (!strip(Name->get(GroupID, QQ)).empty())
 			return strip(Name->get(GroupID, QQ));
-		// Ë½ÁÄÈ«¾ÖêÇ³Æ
+		// ç§èŠå…¨å±€æ˜µç§°
 		if (!strip(Name->get(0LL, QQ)).empty())
 			return strip(Name->get(0LL, QQ));
-		// ÈºÃûÆ¬-ÌÖÂÛ×éÖĞ»á·µ»Ø¿Õ×Ö·û´®
+		// ç¾¤åç‰‡-è®¨è®ºç»„ä¸­ä¼šè¿”å›ç©ºå­—ç¬¦ä¸²
 		if (!getGroupMemberInfo(GroupID, QQ).GroupNick.empty())
 			return strip(getGroupMemberInfo(GroupID, QQ).GroupNick);
-		// êÇ³Æ
+		// æ˜µç§°
 		return strip(getStrangerInfo(QQ).nick);
 	}
-	// Ë½ÁÄ
-	// Ë½ÁÄÈ«¾ÖêÇ³Æ
+	// ç§èŠ
+	// ç§èŠå…¨å±€æ˜µç§°
 	if (!strip(Name->get(0LL, QQ)).empty())
 		return strip(Name->get(0LL, QQ));
-	// êÇ³Æ
+	// æ˜µç§°
 	return strip(getStrangerInfo(QQ).nick);
 }
 
@@ -155,7 +155,7 @@ struct GrSourceType
 
 	bool operator<(GrSourceType b) const
 	{
-		if (b.GrouporDiscussID == 0)/*´ËÊ±¿É°´ÕÕQQID²éÑ¯*/
+		if (b.GrouporDiscussID == 0)/*æ­¤æ—¶å¯æŒ‰ç…§QQIDæŸ¥è¯¢*/
 			return this->QQ < b.QQ;
 		else
 			return this->QQ < b.QQ || this->GrouporDiscussID < b.GrouporDiscussID;
@@ -163,7 +163,7 @@ struct GrSourceType
 };
 #endif // DEBUG
 
-/*map<GrSourceType, string> GroupCardList;   Èº¿¨°ó¶¨£¬QQID+ÈººÅ->½ÇÉ«*/
+/*map<GrSourceType, string> GroupCardList;   ç¾¤å¡ç»‘å®šï¼ŒQQID+ç¾¤å·->è§’è‰²*/
 
 namespace Dice
 {
@@ -177,9 +177,9 @@ namespace Dice
 		msgSendThread.detach();
 		strFileLoc = getAppDirectory();
 		Sleep(10);
-		HANDLE hThread = CreateThread(NULL, 0, MainCirculate, NULL, 0, NULL);/*mark×ÜÑ­»·¿ªÆô*/
+		HANDLE hThread = CreateThread(NULL, 0, MainCirculate, NULL, 0, NULL);/*markæ€»å¾ªç¯å¼€å¯*/
 		/*
-		* Ãû³Æ´æ´¢-´´½¨Óë¶ÁÈ¡
+		* åç§°å­˜å‚¨-åˆ›å»ºä¸è¯»å–
 		*/
 		Name = make_unique<NameStorage>(strFileLoc + "Name.dicedb");
 		ifstream ifstreamCharacterProp(strFileLoc + "CharacterProp.RDconf");
@@ -610,7 +610,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "st")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 2;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -679,11 +679,11 @@ namespace Dice
 				}
 				else if (!strSkillName.length())/*mark*/
 				{
-						string strReply = "¶à¶à´ÓÃ±×ÓÀï³é³öÒ»¾íÖå°Í°ÍµÄÑòÆ¤Ö½£º¡°" + strNickName + "¶¼ÓĞÕâÑùµÄÒ»Ğ©ÊôĞÔß÷¡ª¡ª¡±";
-						map<string, int> AllSkill = CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)];
-						if (AllSkill.empty())
-						{
-							dice_msg.Reply(strNickName + "ºÃÏñÃ»ÓĞÂ¼Èë¹ıºÍÄ¬ÈÏÖµ²»Ò»ÑùµÄĞÅÏ¢ß÷¡ª¡ª");
+					string strReply = "æ ¹æ®å®¢æˆ·æ¡£æ¡ˆä¸Šçš„è®°å½•ï¼Œ" + strNickName + "çš„å±æ€§å¦‚ä¸‹ï¼š";
+					map<string, int> AllSkill = CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)];
+					if (AllSkill.empty())
+					{
+						dice_msg.Reply(strNickName + "å¥½åƒæ²¡æœ‰å½•å…¥è¿‡å’Œé»˜è®¤å€¼ä¸ä¸€æ ·çš„ä¿¡æ¯è¯¶");
 						return;
 					}
 					map<string, int>::iterator SkillCount = AllSkill.begin();
@@ -741,7 +741,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ri")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
 				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
@@ -815,13 +815,13 @@ namespace Dice
 				return;
 			}
 			ilInitList->insert(dice_msg.group_id, initdice.intTotal, strname);
-			const string strReply = "¡°³å³å³å£¡£¡¡±\n" + strname + "µÄÏÈ¹¥÷»µã£º" + strinit + '=' + to_string(initdice.intTotal);
+			const string strReply = strname + "çš„å…ˆæ”»éª°ç‚¹ï¼š" + strinit + '=' + to_string(initdice.intTotal);
 			dice_msg.Reply(strReply);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 4) == "init")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
 				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
@@ -845,7 +845,7 @@ namespace Dice
 		else if (strLowerMessage[intMsgCnt] == 'w')
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt++;
 			bool boolDetail = false;
 			if (strLowerMessage[intMsgCnt] == 'w')
@@ -944,7 +944,7 @@ namespace Dice
 				intTurnCnt = rdTurnCnt.intTotal;
 				if (strTurnCnt.find("d") != string::npos)
 				{
-					string strTurnNotice = strNickName + "µÄÖÀ÷»ÂÖÊı: " + rdTurnCnt.FormShortString() + "ÂÖ";
+					string strTurnNotice = strNickName + "çš„æ·éª°è½®æ•°: " + rdTurnCnt.FormShortString() + "è½®";
 					if (!isHidden)
 					{
 						dice_msg.Reply(strTurnNotice);
@@ -953,11 +953,11 @@ namespace Dice
 					{
 						if (dice_msg.msg_type == Dice::MsgType::Group)
 						{
-							strTurnNotice = "ÔÚÈº\"" + getGroupList()[dice_msg.group_id] + "\"ÖĞ " + strTurnNotice;
+							strTurnNotice = "åœ¨ç¾¤\"" + getGroupList()[dice_msg.group_id] + "\"ä¸­ " + strTurnNotice;
 						}
 						else if (dice_msg.msg_type == Dice::MsgType::Discuss)
 						{
-							strTurnNotice = "ÔÚ¶àÈËÁÄÌìÖĞ " + strTurnNotice;
+							strTurnNotice = "åœ¨å¤šäººèŠå¤©ä¸­ " + strTurnNotice;
 						}
 						AddMsgToQueue(Dice::DiceMsg(strTurnNotice, 0LL, dice_msg.qq_id, Dice::MsgType::Private));
 						pair<multimap<long long, long long>::iterator, multimap<long long, long long>::iterator> range;
@@ -1046,13 +1046,13 @@ namespace Dice
 			}
 			if (!boolDetail && intTurnCnt != 1)
 			{
-				string strAns = strNickName + "÷»³öÁË: " + to_string(intTurnCnt) + "´Î" + rdMainDice.strDice + ": { ";
+				string strAns = strNickName + "éª°å‡ºäº†: " + to_string(intTurnCnt) + "æ¬¡" + rdMainDice.strDice + ": { ";
 				if (!strReason.empty())
-					strAns.insert(0, "ÎªÁË" + strReason + " ");
+					strAns.insert(0, "ç”±äº" + strReason + " ");
 				vector<int> vintExVal;
 				while (intTurnCnt--)
 				{
-					// ´Ë´¦·µ»ØÖµÎŞÓÃ
+					// æ­¤å¤„è¿”å›å€¼æ— ç”¨
 					// ReSharper disable once CppExpressionWithoutSideEffects
 					rdMainDice.Roll();
 					strAns += to_string(rdMainDice.intTotal);
@@ -1065,7 +1065,7 @@ namespace Dice
 				strAns += " }";
 				if (!vintExVal.empty())
 				{
-					strAns += ",¼«Öµ: ";
+					strAns += ",æå€¼: ";
 					for (auto it = vintExVal.cbegin(); it != vintExVal.cend(); ++it)
 					{
 						strAns += to_string(*it);
@@ -1081,11 +1081,11 @@ namespace Dice
 				{
 					if (dice_msg.msg_type == Dice::MsgType::Group)
 					{
-						strAns = "ÔÚÈº\"" + getGroupList()[dice_msg.group_id] + "\"ÖĞ " + strAns;
+						strAns = "åœ¨ç¾¤\"" + getGroupList()[dice_msg.group_id] + "\"ä¸­ " + strAns;
 					}
 					else if (dice_msg.msg_type == Dice::MsgType::Discuss)
 					{
-						strAns = "ÔÚ¶àÈËÁÄÌìÖĞ " + strAns;
+						strAns = "åœ¨å¤šäººèŠå¤©ä¸­ " + strAns;
 					}
 					AddMsgToQueue(Dice::DiceMsg(strAns, 0LL, dice_msg.qq_id, Dice::MsgType::Private));
 					pair<multimap<long long, long long>::iterator, multimap<long long, long long>::iterator> range;
@@ -1110,14 +1110,14 @@ namespace Dice
 			{
 				while (intTurnCnt--)
 				{
-					// ´Ë´¦·µ»ØÖµÎŞÓÃ
+					// æ­¤å¤„è¿”å›å€¼æ— ç”¨
 					// ReSharper disable once CppExpressionWithoutSideEffects
 					rdMainDice.Roll();
-					string strAns = strNickName + "÷»³öÁË: " + (boolDetail
+					string strAns = strNickName + "éª°å‡ºäº†: " + (boolDetail
 						? rdMainDice.FormCompleteString()
 						: rdMainDice.FormShortString());
 					if (!strReason.empty())
-						strAns.insert(0, "ÎªÁË" + strReason + " ");
+						strAns.insert(0, "ç”±äº" + strReason + " ");
 					if (!isHidden)
 					{
 						dice_msg.Reply(strAns);
@@ -1126,11 +1126,11 @@ namespace Dice
 					{
 						if (dice_msg.msg_type == Dice::MsgType::Group)
 						{
-							strAns = "ÔÚÈº\"" + getGroupList()[dice_msg.group_id] + "\"ÖĞ " + strAns;
+							strAns = "åœ¨ç¾¤\"" + getGroupList()[dice_msg.group_id] + "\"ä¸­ " + strAns;
 						}
 						else if (dice_msg.msg_type == Dice::MsgType::Discuss)
 						{
-							strAns = "ÔÚ¶àÈËÁÄÌìÖĞ " + strAns;
+							strAns = "åœ¨å¤šäººèŠå¤©ä¸­ " + strAns;
 						}
 						AddMsgToQueue(Dice::DiceMsg(strAns, 0LL, dice_msg.qq_id, Dice::MsgType::Private));
 						pair<multimap<long long, long long>::iterator, multimap<long long, long long>::iterator> range;
@@ -1154,14 +1154,14 @@ namespace Dice
 			}
 			if (isHidden)
 			{
-				const string strReply = strNickName + "ÍµÍµ÷»³öÁËÒ»¸ö¡­¡­ÍÛàŞàŞ£¡";
+				const string strReply = strNickName + "è¿›è¡Œäº†ä¸€æ¬¡æš—éª°";
 				dice_msg.Reply(strReply);
 			}
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ob")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
 				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
@@ -1251,7 +1251,7 @@ namespace Dice
 			}
 			if (Command == "list")
 			{
-				string Msg = "µ±Ç°µÄÅÔ¹ÛÕßÓĞ:";
+				string Msg = "å½“å‰çš„æ—è§‚è€…æœ‰:";
 				pair<multimap<long long, long long>::iterator, multimap<long long, long long>::iterator> range;
 				if (dice_msg.msg_type == Dice::MsgType::Group)
 				{
@@ -1265,7 +1265,7 @@ namespace Dice
 				{
 					Msg += "\n" + getName(it->second, dice_msg.group_id) + "(" + to_string(it->second) + ")";
 				}
-				const string strReply = Msg == "µ±Ç°µÄÅÔ¹ÛÕßÓĞ:" ? "ÏÖÔÚÃ»ÈËÔÚÎ§¹ÛÒ®" : Msg;
+				const string strReply = Msg == "å½“å‰çš„æ—è§‚è€…æœ‰:" ? "å½“å‰æš‚æ— æ—è§‚è€…" : Msg;
 				dice_msg.Reply(strReply);
 			}
 			else if (Command == "clr")
@@ -1312,12 +1312,12 @@ namespace Dice
 						{
 							ObserveDiscuss.erase(it);
 						}
-						const string strReply = strNickName + "³É¹¦ÍË³öÅÔ¹ÛÄ£Ê½ÁËß÷!";
+						const string strReply = strNickName + "æˆåŠŸé€€å‡ºæ—è§‚æ¨¡å¼!";
 						dice_msg.Reply(strReply);
 						return;
 					}
 				}
-				const string strReply = strNickName + "Ã»ÓĞÔÚÅÔ¹ÛÄ£Ê½ß÷!";
+				const string strReply = strNickName + "æ²¡æœ‰åŠ å…¥æ—è§‚æ¨¡å¼!";
 				dice_msg.Reply(strReply);
 			}
 			else
@@ -1335,7 +1335,7 @@ namespace Dice
 				{
 					if (it->second == dice_msg.qq_id)
 					{
-						const string strReply = strNickName + "ÒÑ¾­´¦ÓÚÅÔ¹ÛÄ£Ê½ÁËß÷!";
+						const string strReply = strNickName + "å·²ç»å¤„äºæ—è§‚æ¨¡å¼!";
 						dice_msg.Reply(strReply);
 						return;
 					}
@@ -1349,38 +1349,38 @@ namespace Dice
 					ObserveDiscuss.insert(make_pair(dice_msg.group_id, dice_msg.qq_id));
 				}
 				
-				const string strReply = strNickName + "³É¹¦¼ÓÈëÅÔ¹ÛÄ£Ê½ÁËß÷!";
+				const string strReply = strNickName + "æˆåŠŸåŠ å…¥æ—è§‚æ¨¡å¼!";
 				dice_msg.Reply(strReply);
 			}
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ti")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
-			string strAns = "ÍÛà¸¡­¡­" + strNickName + "·èµôÁËÄØ¡ª¡ªÁÙÊ±Ö¢×´:\n";
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
+			string strAns = strNickName + "çš„ç–¯ç‹‚å‘ä½œ-ä¸´æ—¶ç—‡çŠ¶:\n";
 			TempInsane(strAns);
 			dice_msg.Reply(strAns);
 		}
-		else if (strLowerMessage.substr(intMsgCnt, 2) == "tz")/*Ëæ»úÌØĞÔµÄ²¿·Ö*/
+		else if (strLowerMessage.substr(intMsgCnt, 2) == "tz")/*éšæœºç‰¹æ€§çš„éƒ¨åˆ†*/
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			const int intcharacteristic = RandomGenerator::Randint(1, 120);
-			string CharacterReply = "ÎÒÏëÏë~" + strNickName + "ÓµÓĞÕâÑùµÄÌØÖÊ»òĞí»áºÜºÏÊÊÄØ¡ª¡ª\n" + Characteristic[intcharacteristic];
+			string CharacterReply = strNickName + "çš„ç‰¹è´¨ï¼š\n" + Characteristic[intcharacteristic];
 			dice_msg.Reply(CharacterReply);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "li")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
-			string strAns = "ÍÛà¸¡­¡­" + strNickName + "·èµôÁËÄØ¡ª¡ª×Ü½áÖ¢×´:\n";
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
+			string strAns = strNickName + "çš„ç–¯ç‹‚å‘ä½œ-æ€»ç»“ç—‡çŠ¶:\n";
 			LongInsane(strAns);
 			dice_msg.Reply(strAns);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "sc")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 2;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -1400,7 +1400,7 @@ namespace Dice
 				return;
 			}
 			if (San.empty() && !(CharacterProp.count(SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)) && CharacterProp[
-				SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)].count("ÀíÖÇ")))
+				SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)].count("ç†æ™º")))
 			{
 				dice_msg.Reply(GlobalMsg["strSanInvalid"]);
 				return;
@@ -1433,49 +1433,49 @@ namespace Dice
 					dice_msg.Reply(GlobalMsg["strSanInvalid"]);
 					return;
 				}
-				const int intSan = San.empty() ? CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)]["ÀíÖÇ"] : stoi(San);
+				const int intSan = San.empty() ? CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)]["ç†æ™º"] : stoi(San);
 				if (intSan == 0)
 				{
 					dice_msg.Reply(GlobalMsg["strSanInvalid"]);
 					return;
 				}
-				string strAns = strNickName + "µÄSancheck:\n1D100=";
+				string strAns = strNickName + "çš„Sancheck:\n1D100=";
 				const int intTmpRollRes = RandomGenerator::Randint(1, 100);
 				strAns += to_string(intTmpRollRes);
 
 				if (intTmpRollRes <= intSan)
 				{
-					strAns += " " + GlobalMsg["strSCSuccess"] + "\nÄãµÄSanÖµ¼õÉÙ" + SanCost.substr(0, SanCost.find("/"));
+					strAns += " " + GlobalMsg["strSCSuccess"] + "\nä½ çš„Sanå€¼å‡å°‘" + SanCost.substr(0, SanCost.find("/"));
 					if (SanCost.substr(0, SanCost.find("/")).find("d") != string::npos)
 						strAns += "=" + to_string(rdSuc.intTotal);
-					strAns += +"µã,ÏÖÔÚ»¹Ê£" + to_string(max(0, intSan - rdSuc.intTotal)) + "µã£¡Òª¼ÓÓÍ»îÏÂÈ¥Ñ½£¬Á½½ÅÊŞ£¡";
+					strAns += +"ç‚¹,å½“å‰å‰©ä½™" + to_string(max(0, intSan - rdSuc.intTotal)) + "ç‚¹";
 					if (San.empty())
 					{
-						CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)]["ÀíÖÇ"] = max(0, intSan - rdSuc.intTotal);
+						CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)]["ç†æ™º"] = max(0, intSan - rdSuc.intTotal);
 					}
 				}
 				else if (intTmpRollRes == 100 || (intSan < 50 && intTmpRollRes > 95))
 				{
-					strAns += " " + GlobalMsg["strSCFumble"] + "\nÄãµÄSanÖµ¼õÉÙ" + SanCost.substr(SanCost.find("/") + 1);
+					strAns += " " + GlobalMsg["strSCFumble"] + "\nä½ çš„Sanå€¼å‡å°‘" + SanCost.substr(SanCost.find("/") + 1);
 					// ReSharper disable once CppExpressionWithoutSideEffects
 					rdFail.Max();
 					if (SanCost.substr(SanCost.find("/") + 1).find("d") != string::npos)
-						strAns += "×î´óÖµ=" + to_string(rdFail.intTotal);
-					strAns += +"µã,ÏÖÔÚÖ»Ê£" + to_string(max(0, intSan - rdFail.intTotal)) + "µãÁË¡­¡­Ë»£¬ºÃ²Òà¸¡£";
+						strAns += "æœ€å¤§å€¼=" + to_string(rdFail.intTotal);
+					strAns += +"ç‚¹,å½“å‰å‰©ä½™" + to_string(max(0, intSan - rdFail.intTotal)) + "ç‚¹";
 					if (San.empty())
 					{
-						CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)]["ÀíÖÇ"] = max(0, intSan - rdFail.intTotal);
+						CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)]["ç†æ™º"] = max(0, intSan - rdFail.intTotal);
 					}
 				}
 				else
 				{
-					strAns += " " + GlobalMsg["strSCFailure"] + "\nÄãµÄSanÖµ¼õÉÙ" + SanCost.substr(SanCost.find("/") + 1);
+					strAns += " " + GlobalMsg["strSCFailure"] + "\nä½ çš„Sanå€¼å‡å°‘" + SanCost.substr(SanCost.find("/") + 1);
 					if (SanCost.substr(SanCost.find("/") + 1).find("d") != string::npos)
 						strAns += "=" + to_string(rdFail.intTotal);
-					strAns += +"µã,ÏÖÔÚÖ»Ê£" + to_string(max(0, intSan - rdFail.intTotal)) + "µãÁË£¬Òª¼ÓÓÍ»îÏÂÈ¥Ñ½£¬Á½½ÅÊŞ¡ª¡ª";
+					strAns += +"ç‚¹,å½“å‰å‰©ä½™" + to_string(max(0, intSan - rdFail.intTotal)) + "ç‚¹";
 					if (San.empty())
 					{
-						CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)]["ÀíÖÇ"] = max(0, intSan - rdFail.intTotal);
+						CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)]["ç†æ™º"] = max(0, intSan - rdFail.intTotal);
 					}
 				}
 				dice_msg.Reply(strAns);
@@ -1483,7 +1483,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "en")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 2;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -1532,19 +1532,19 @@ namespace Dice
 				intCurrentVal = stoi(strCurrentValue);
 			}
 
-			string strAns = strNickName + "µÄ" + strSkillName + "ÓĞ»ú»á³É³¤Âï£¿\n1D100=";
+			string strAns = strNickName + "çš„" + strSkillName + "å¢å¼ºæˆ–æˆé•¿æ£€å®š:\n1D100=";
 			const int intTmpRollRes = RandomGenerator::Randint(1, 100);
 			strAns += to_string(intTmpRollRes) + "/" + to_string(intCurrentVal);
 
 			if (intTmpRollRes <= intCurrentVal && intTmpRollRes <= 95)
 			{
-				strAns += " " + GlobalMsg["strENFailure"] + "\nßí£¬¿´À´ÄãµÄ" + (strSkillName.empty() ? "Õâ¸ö¼¼ÄÜ" : strSkillName) + "»¹µÃÔÙÁ·Á·Ñ½!";
+				strAns += " " + GlobalMsg["strENFailure"] + "\nä½ çš„" + (strSkillName.empty() ? "å±æ€§æˆ–æŠ€èƒ½å€¼" : strSkillName) + "æ²¡æœ‰å˜åŒ–!";
 			}
 			else
 			{
-				strAns += " " + GlobalMsg["strENSuccess"] + "\nÄãµÄ" + (strSkillName.empty() ? "Õâ¸ö¼¼ÄÜ" : strSkillName) + "Ôö¼ÓÁË1D10=";
+				strAns += " " + GlobalMsg["strENSuccess"] + "\nä½ çš„" + (strSkillName.empty() ? "å±æ€§æˆ–æŠ€èƒ½å€¼" : strSkillName) + "å¢åŠ 1D10=";
 				const int intTmpRollD10 = RandomGenerator::Randint(1, 10);
-				strAns += to_string(intTmpRollD10) + "µã,µ±Ç°Îª" + to_string(intCurrentVal + intTmpRollD10) + "µã£¬¹§Ï²£¡";
+				strAns += to_string(intTmpRollD10) + "ç‚¹,å½“å‰ä¸º" + to_string(intCurrentVal + intTmpRollD10) + "ç‚¹";
 				if (strCurrentValue.empty())
 				{
 					CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)][strSkillName] = intCurrentVal +
@@ -1652,7 +1652,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 4) == "name")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 4;
 			while (isspace(static_cast<unsigned char>(dice_msg.msg[intMsgCnt])))
 				intMsgCnt++;
@@ -1706,7 +1706,7 @@ namespace Dice
 					TempNameStorage.push_back(name);
 				}
 			}
-			string strReply = "ßí¡­¡­Èç¹ûÊÇ" + strNickName + "µÄµ÷²éÔ±£¬ÄÇÃ´½ĞÕâÑùµÄÃû×ÖÒ²Ğí²»´í¡ª¡ª\n";
+			string strReply = strNickName + "çš„éšæœºåç§°:\n";
 			for (auto i = 0; i != TempNameStorage.size(); i++)
 			{
 				strReply.append(TempNameStorage[i]);
@@ -1717,7 +1717,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "nnn")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 3;
 			while (isspace(static_cast<unsigned char>(dice_msg.msg[intMsgCnt])))
 				intMsgCnt++;
@@ -1739,13 +1739,13 @@ namespace Dice
 			{
 				Name->set(dice_msg.group_id, dice_msg.qq_id, name);
 			}
-			const string strReply = "ßí£¬ÄÇÒÔºó" + strNickName + "ÔÚ" + (dice_msg.msg_type == Dice::MsgType::Private ? "ÍâÃæÍæµÄÊ±ºò£¬" : "ÕâÀï£¬") +"¶à¶à¾Í½ĞÄã" + name+ "ÔõÃ´Ñù£¿";
+			const string strReply = "å·²å°†" + strNickName + "çš„" + (dice_msg.msg_type == Dice::MsgType::Private ? "å…¨å±€" : "") +"åç§°æ›´æ”¹ä¸º" + name;
 			dice_msg.Reply(strReply);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "nn")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
 				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
@@ -1763,14 +1763,14 @@ namespace Dice
 			if (!name.empty())
 			{
 				Name->set(dice_msg.group_id, dice_msg.qq_id, name);
-				const string strReply = strNickName + "ÒÔºó¾Í½Ğ" + strip(name) + "ÁËÂï£¿ÖªµÀÀ²£¡";
+				const string strReply = "å·²å°†" + strNickName + "çš„åç§°æ›´æ”¹ä¸º" + strip(name);
 				dice_msg.Reply(strReply);
 			}
 			else
 			{
 				if (Name->del(dice_msg.group_id, dice_msg.qq_id))
 				{
-					const string strReply = "ÎØ°¡£¡¸Õ¸Õ±»" + strNickName + "ÃÍß£ÁËÒ»°Ñ£¬ÒòÎªÌ«Êæ·ş½á¹ûÍêÈ«Íü¼Çµ½µ×ÊÇË­ÁË¡­¡­";
+					const string strReply = "å·²å°†" + strNickName + "çš„åç§°åˆ é™¤";
 					dice_msg.Reply(strReply);
 				}
 				else
@@ -1783,7 +1783,7 @@ namespace Dice
 		else if (strLowerMessage[intMsgCnt] == 'n')
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 1;
 			while (isspace(static_cast<unsigned char>(dice_msg.msg[intMsgCnt])))
 				intMsgCnt++;
@@ -1796,14 +1796,14 @@ namespace Dice
 			if (!name.empty())
 			{
 				Name->set(0LL, dice_msg.qq_id, name);
-				const string strReply = "ÖªµÀÀ²£¡ÒÔºóÒ»Æğ³öÈ¥Íæ¾Í½Ğ" + strNickName + "¡­¡­" + strip(name) + "°É£¡";
+				const string strReply = "å·²å°†" + strNickName + "çš„å…¨å±€åç§°æ›´æ”¹ä¸º" + strip(name);
 				dice_msg.Reply(strReply);
 			}
 			else
 			{
 				if (Name->del(0LL, dice_msg.qq_id))
 				{
-					const string strReply = "ºÃà¸£¬Ö®Ç°µÄêÇ³Æ²»Ï²»¶Âï£¿ÄÇÒÔºóÎÒ¾Í²»½ĞÄã" + strNickName + "À²¡ª¡ª";
+					const string strReply = "å·²å°†" + strNickName + "çš„å…¨å±€åç§°åˆ é™¤";
 					dice_msg.Reply(strReply);
 				}
 				else
@@ -1816,7 +1816,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 5) == "rules")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 5;
 			while (isspace(static_cast<unsigned char>(dice_msg.msg[intMsgCnt])))
 				intMsgCnt++;
@@ -1833,24 +1833,24 @@ namespace Dice
 				dice_msg.Reply(GlobalMsg["strRuleErr"] + strReturn);
 			}
 		}
-		else if (strLowerMessage.substr(intMsgCnt, 3) == "txt")/*±¸ÍüÂ¼*/
+		else if (strLowerMessage.substr(intMsgCnt, 2) == "mo")/*å¤‡å¿˜å½•*/
 		{
 			if (!MsgSend)
 			{
-				dice_msg.Reply("Ö÷Ñ­»·ÉĞÎ´Æô¶¯£¬ÇëµÈ´ı10Ãë");
+				dice_msg.Reply("ä¸»å¾ªç¯å°šæœªå¯åŠ¨ï¼Œè¯·ç­‰å¾…10ç§’");
 				return;
 			}
-			intMsgCnt += 3;
+			intMsgCnt += 2;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
 			string Command;
 			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !isspace(
-				static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && (Command.length() < 3))/*»ñÈ¡Ö¸ÁîºóµÄ3¸ö×Ö·û×÷Îª×ÓÖ¸Áî*/
+				static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && (Command.length() < 3))/*è·å–æŒ‡ä»¤åçš„3ä¸ªå­—ç¬¦ä½œä¸ºå­æŒ‡ä»¤*/
 			{
 				Command += strLowerMessage[intMsgCnt];
 				intMsgCnt++;
 			}
-			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))/*É¾³ı¾äÊ×µÄ\n*/
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))/*åˆ é™¤å¥é¦–çš„\n*/
 				intMsgCnt++;
 			string strAction;
 			if (Command == "add")
@@ -1858,27 +1858,27 @@ namespace Dice
 				strAction = strip(dice_msg.msg.substr(intMsgCnt));
 				if (strAction.length() == 0)
 				{
-					dice_msg.Reply("¡°ßí¡­¡­ËùÒÔÏëÒªÎÒ¼ÇÊ²Ã´£¿¡±µğ×ÅÓğÃ«±ÊµÄ¶à¶à»Î×ÅÎ²°ÍµÈ´ıÄã¿ª¿Ú");
+					dice_msg.Reply("ä½ åˆ°åº•æƒ³è®©æˆ‘è®°å½•ä»€ä¹ˆå‘€ï¼Ÿ");
 					return;
 				}
-				while (!(strAction.find("\r") == string::npos))/*\r×ª»¯Îª\n*/
+				while (!(strAction.find("\r") == string::npos))/*\rè½¬åŒ–ä¸º\n*/
 					strAction.replace(strAction.find("\r"), 1, "\n");
-				while (!(strAction.find("\n)") == string::npos))/*É¾³ı\nÖ®ºóµÄ)*/
+				while (!(strAction.find("\n)") == string::npos))/*åˆ é™¤\nä¹‹åçš„)*/
 					strAction.erase(strAction.find("\n)") + 1, 1);
-				while (!(strAction.find("\n\n") == string::npos))/*É¾³ıÁ¬ĞøµÄ\n£¬Ö»±£ÁôÒ»¸ö*/
+				while (!(strAction.find("\n\n") == string::npos))/*åˆ é™¤è¿ç»­çš„\nï¼Œåªä¿ç•™ä¸€ä¸ª*/
 					strAction.erase(strAction.find("\n\n"), 1);
-				while (strAction[strAction.length() - 1] == '\n')/*É¾³ı¾äÄ©µÄ\n*/
+				while (strAction[strAction.length() - 1] == '\n')/*åˆ é™¤å¥æœ«çš„\n*/
 					strAction.erase(strAction.length() - 1, 1);
-				while (!(strAction.find("{memostart}") == string::npos))/*É¾³ı±êÖ¾·û*/
+				while (!(strAction.find("{memostart}") == string::npos))/*åˆ é™¤æ ‡å¿—ç¬¦*/
 					strAction.erase(strAction.find("{memostart}"), 11);
 				if (strAction.length() == 0)
 				{
-					dice_msg.Reply("Äãµ½µ×ÏëÈÃÎÒ¼ÇÂ¼Ê²Ã´Ñ½£¿");
+					dice_msg.Reply("ä½ åˆ°åº•æƒ³è®©æˆ‘è®°å½•ä»€ä¹ˆå‘€ï¼Ÿ");
 					return;
 				}
 				if (strAction.length() > 200)
 				{
-					dice_msg.Reply("¡°ÎØ°¡¡­¡­ÕâÃ´¶à£¡Ò»ÕÅÑòÆ¤Ö½¼·²»ÏÂÀ²£¡£¡¡±");
+					dice_msg.Reply("å¤‡å¿˜å½•ä¸€æ¡æœ€å¤šåªèƒ½è®°å½•100ä¸ªä¸­æ–‡å­—ç¬¦å“¦");
 					return;
 				}
 				dice_msg.Reply(MemoRecorder(dice_msg.qq_id, strAction, MemoRecoEnum::Add, 0));
@@ -1889,7 +1889,7 @@ namespace Dice
 				strAction = strip(dice_msg.msg.substr(intMsgCnt));
 				if (strAction.length() == 0)
 				{
-					dice_msg.Reply("¡°ßí¡­¡­ËùÒÔÏëÒªÎÒ¼ÇÊ²Ã´£¿¡±µğ×ÅÓğÃ«±ÊµÄ¶à¶à»Î×ÅÎ²°ÍµÈ´ıÄã¿ª¿Ú");
+					dice_msg.Reply("ä½ åˆ°åº•æƒ³è®©æˆ‘è®°å½•ä»€ä¹ˆå‘€ï¼Ÿ");
 					return;
 				}
 				while (!(strAction.find("\r") == string::npos))
@@ -1900,26 +1900,21 @@ namespace Dice
 					strAction.erase(strAction.find("\n\n"), 1);
 				while (strAction[strAction.length() - 1] == '\n')
 					strAction.erase(strAction.length() - 1, 1);
-				while (!(strAction.find("{memostart}") == string::npos))/*É¾³ı±êÖ¾·û*/
+				while (!(strAction.find("{memostart}") == string::npos))/*åˆ é™¤æ ‡å¿—ç¬¦*/
 					strAction.erase(strAction.find("{memostart}"), 11);
 				if (strAction.length() == 0)
 				{
-					dice_msg.Reply("¡°ßí¡­¡­ËùÒÔÏëÒªÎÒ¼ÇÊ²Ã´£¿¡±µğ×ÅÓğÃ«±ÊµÄ¶à¶à»Î×ÅÎ²°ÍµÈ´ıÄã¿ª¿Ú");
+					dice_msg.Reply("ä½ åˆ°åº•æƒ³è®©æˆ‘è®°å½•ä»€ä¹ˆå‘€ï¼Ÿ");
 					return;
 				}
 				if (strAction.length() > 200)
 				{
-					dice_msg.Reply("¡°ÎØ°¡¡­¡­ÕâÃ´¶à£¡Ò»ÕÅÑòÆ¤Ö½¼·²»ÏÂÀ²£¡£¡¡±");
+					dice_msg.Reply("å¤‡å¿˜å½•ä¸€æ¡æœ€å¤šåªèƒ½è®°å½•100ä¸ªä¸­æ–‡å­—ç¬¦å“¦");
 					return;
 				}
 				dice_msg.Reply(MemoRecorder(dice_msg.qq_id, strAction, MemoRecoEnum::New, 0));
 				MemoPack(true, false);
 			}
-			else if (Command == "hlp")
-		{
-			string strReply = "¡ï¶à¶àµÄ±¸ÍüÂ¼ËµÃ÷¡ï\n.txt	ÏÔÊ¾±¸ÍüÄÚÈİ\n.txthlp	ÏÔÊ¾±¸Íü°ïÖú\n.txtnew [ÄÚÈİ]	ĞÂ½¨Ò»¸ö±¸Íü£¨¶ªÊ§ÒÔÇ°µÄÄÚÈİ£©\n.txtadd [ÄÚÈİ]	ÔÚ±¸ÍüÖĞÔö¼ÓĞÂµÄÄÚÈİ\n.txtclr [ĞòºÅ]	É¾³ıÒÑ¼ÇÂ¼µÄ±¸Íü(²»¼ÓĞòºÅÔòÈ«²¿É¾³ı)\n.txtset [1-24ÕûÊı]	¶¨Ê±ÌáĞÑ\n.txtdel	É¾³ı¶¨Ê±ÌáĞÑ";
-		dice_msg.Reply(strReply);
-		}
 			else if (Command == "clr")
 			{
 				string strMemoNum;
@@ -1942,7 +1937,6 @@ namespace Dice
 				dice_msg.Reply(MemoRecorder(dice_msg.qq_id, strAction, MemoRecoEnum::Clear,intMemoNum));
 				MemoPack(true, false);
 			}
-			
 			else if (Command == "on")
 			{
 				string strReply = MemoAlarmControl(dice_msg.qq_id, true);
@@ -1965,7 +1959,7 @@ namespace Dice
 				}
 				if ((atoi(AlarmTime.c_str()) >= 24) || AlarmTime == "")
 				{
-					string strReply = "ÄãÕâÃ´ËµÎÒ²»ÖªµÀ¸ÃÊ²Ã´Ê±ºòÌáĞÑÄãÑ½";
+					string strReply = "ä½ è¿™ä¹ˆè¯´æˆ‘ä¸çŸ¥é“è¯¥ä»€ä¹ˆæ—¶å€™æé†’ä½ å‘€";
 					dice_msg.Reply(strReply);
 					return;
 				}
@@ -2000,11 +1994,11 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "me")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			if (dice_msg.msg_type == Dice::MsgType::Private)
 			{
-				//dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
-				//return;
+				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
+				return;
 				intMsgCnt += 2;
 				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 					intMsgCnt++;
@@ -2028,12 +2022,12 @@ namespace Dice
 				}
 				if (strGroupID.empty())
 				{
-					dice_msg.Reply("¶à¶à·­ÁË°ëÌì£¬Ã»ÓĞÕÒµ½ÕâÑùµÄÈº");
+					dice_msg.Reply("ä½ å‘¼å«çš„ç¾¤å·æ˜¯ç©ºå·ï¼è¯·æŸ¥è¯åå†æ‹¨ï¼");
 					return;
 				}
 				if (strAction.empty())
 				{
-					dice_msg.Reply("¡°ßí¡­¡­£¿Òª¸ÉÊ²Ã´ÄãËµÂï£¡¡±");
+					dice_msg.Reply("ä½ åˆ°åº•æƒ³å¹²ä»€ä¹ˆå•Šï¼Ÿ");
 					return;
 				}
 				const long long llGroupID = stoll(strGroupID);
@@ -2055,7 +2049,7 @@ namespace Dice
 				}
 				else
 				{
-					dice_msg.Reply("¡°ÖªµÀÀ²£¡¶à¶àÕâ¾ÍÈ¥¸æËßËûÃÇ¡ª¡ª¡±");
+					dice_msg.Reply("ä¿¡æ¯å·²é€è¾¾ï¼");
 				}
 				}
 			else if ((dice_msg.msg_type == Dice::MsgType::Group)||(dice_msg.msg_type == Dice::MsgType::Discuss))
@@ -2071,11 +2065,11 @@ namespace Dice
 						if (DisabledMEGroup.count(dice_msg.group_id))
 						{
 							DisabledMEGroup.erase(dice_msg.group_id);
-							dice_msg.Reply("³É¹¦ÔÚ±¾ÈºÖĞÆôÓÃ.meÃüÁîÀ²£¡");
+							dice_msg.Reply("æˆåŠŸåœ¨æœ¬ç¾¤ä¸­å¯ç”¨.meå‘½ä»¤!è®©æˆ‘ä»¬æ¥ç©è¿‡å®¶å®¶å§");
 						}
 						else
 						{
-							dice_msg.Reply("ÔÚ±¾ÈºÖĞ.meÃüÁîÃ»ÓĞ±»½ûÓÃ£¡");
+							dice_msg.Reply("è¯¶ï¼Ÿè¿™ä¸æ˜¯ç©çš„æ­£å¼€å¿ƒä¹ˆï¼Ÿï¼ˆåœ¨æœ¬ç¾¤ä¸­.meå‘½ä»¤æ²¡æœ‰è¢«ç¦ç”¨ï¼ï¼‰");
 						}
 					}
 					else
@@ -2091,11 +2085,11 @@ namespace Dice
 						if (!DisabledMEGroup.count(dice_msg.group_id))
 						{
 							DisabledMEGroup.insert(dice_msg.group_id);
-							dice_msg.Reply("³É¹¦ÔÚ±¾ÈºÖĞ½ûÓÃ.meÃüÁîÀ²£¡");
+							dice_msg.Reply("æˆåŠŸåœ¨æœ¬ç¾¤ä¸­ç¦ç”¨.meå‘½ä»¤ï¼è¿‡å®¶å®¶ç¦æ­¢x");
 						}
 						else
 						{
-							dice_msg.Reply(".meÃüÁîÃ»ÓĞ±»ÆôÓÃ£¡");
+							dice_msg.Reply("äººå®¶æ‰æ²¡æœ‰åœ¨ç©è¿‡å®¶å®¶ï¼ï¼ˆ.meå‘½ä»¤æ²¡æœ‰è¢«å¯ç”¨ï¼ï¼‰");
 						}
 					}
 					else
@@ -2106,7 +2100,7 @@ namespace Dice
 				}
 				if (DisabledMEGroup.count(dice_msg.group_id))
 				{
-					dice_msg.Reply("ÔÚ±¾ÈºÖĞ.meÃüÁîÒÑ±»½ûÓÃ£¡");
+					dice_msg.Reply("åœ¨æœ¬ç¾¤ä¸­.meå‘½ä»¤å·²è¢«ç¦ç”¨ï¼è¿‡å®¶å®¶ç¦æ­¢x");
 					return;
 				}
 				if (DisabledMEGroup.count(dice_msg.group_id))
@@ -2117,7 +2111,7 @@ namespace Dice
 				strAction = strip(dice_msg.msg.substr(intMsgCnt));
 				if (strAction.empty())
 				{
-					dice_msg.Reply("¡°ßí¡­¡­£¿Òª¸ÉÊ²Ã´ÄãËµÂï£¡¡±");
+					dice_msg.Reply("ä½ åˆ°åº•æƒ³å¹²ä»€ä¹ˆå‘€ï¼ˆåŠ¨ä½œä¸èƒ½ä¸ºç©º!ï¼‰");
 					return;
 				}
 				const string strReply = strNickName + strAction;
@@ -2131,7 +2125,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "set")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 3;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -2156,13 +2150,13 @@ namespace Dice
 				DefaultDice.erase(dice_msg.qq_id);
 			else
 				DefaultDice[dice_msg.qq_id] = intDefaultDice;
-			const string strSetSuccessReply = "Æ½Ê±" + strNickName + "¶¼ÓÃD" + strDefaultDice + "µÄ÷»×ÓÂğ¡­¡­µÈµÈà¸£¬ÎÒÌôÒ»¸öºÃ¿´µÄ" + strDefaultDice + "Ãæ÷»×¨ÃÅ¸øÄãÓÃ£¬ºÙºÙ~";
+			const string strSetSuccessReply = "å·²å°†" + strNickName + "çš„é»˜è®¤éª°ç±»å‹æ›´æ”¹ä¸ºD" + strDefaultDice;
 			dice_msg.Reply(strSetSuccessReply);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 5) == "coc6d")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			string strReply = strNickName;
 			COC6D(strReply);
 			dice_msg.Reply(strReply);
@@ -2170,7 +2164,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 4) == "coc6")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 4;
 			if (strLowerMessage[intMsgCnt] == 's')
 				intMsgCnt++;
@@ -2205,7 +2199,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "dnd")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 3;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 				intMsgCnt++;
@@ -2238,7 +2232,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 5) == "coc7d" || strLowerMessage.substr(intMsgCnt, 4) == "cocd")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			string strReply = strNickName;
 			COC7D(strReply);
 			dice_msg.Reply(strReply);
@@ -2246,7 +2240,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "coc")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 3;
 			if (strLowerMessage[intMsgCnt] == '7')
 				intMsgCnt++;
@@ -2283,7 +2277,7 @@ namespace Dice
 		else if (strLowerMessage.substr(intMsgCnt, 3) == "ast")/*mark*/
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			if (dice_msg.msg_type == Dice::MsgType::Private) 
 				return;
 			intMsgCnt += 3;
@@ -2301,19 +2295,19 @@ namespace Dice
 				string strReply;
 				if (!RoomRule.count(dice_msg.group_id))
 				{
-					strReply = "µ±Ç°·¿¹æÎª£º´ó³É¹¦£º1-5 ´óÊ§°Ü£º96-100";
+					strReply = "å½“å‰æˆ¿è§„ä¸ºï¼šå¤§æˆåŠŸï¼š1-5 å¤§å¤±è´¥ï¼š96-100";
 				}
 				else if (RoomRule[dice_msg.group_id] == 1)
 				{
-					strReply = "µ±Ç°·¿¹æÎª£º´ó³É¹¦£º1 ´óÊ§°Ü£º100";
+					strReply = "å½“å‰æˆ¿è§„ä¸ºï¼šå¤§æˆåŠŸï¼š1 å¤§å¤±è´¥ï¼š100";
 				}
 				else if (RoomRule[dice_msg.group_id] == 0)
 				{
-					strReply = "µ±Ç°·¿¹æÎª£º´ó³É¹¦£ºÒÑ½ûÓÃ ´óÊ§°Ü£ºÒÑ½ûÓÃ";
+					strReply = "å½“å‰æˆ¿è§„ä¸ºï¼šå¤§æˆåŠŸï¼šå·²ç¦ç”¨ å¤§å¤±è´¥ï¼šå·²ç¦ç”¨";
 				}
 				else
 				{
-					strReply = "µ±Ç°·¿¹æÎª£º´ó³É¹¦£º1-" + to_string(RoomRule[dice_msg.group_id]) + "´óÊ§°Ü£º" + to_string(101 - RoomRule[dice_msg.group_id]) + "-100";
+					strReply = "å½“å‰æˆ¿è§„ä¸ºï¼šå¤§æˆåŠŸï¼š1-" + to_string(RoomRule[dice_msg.group_id]) + "å¤§å¤±è´¥ï¼š" + to_string(101 - RoomRule[dice_msg.group_id]) + "-100";
 				}
 				dice_msg.Reply(strReply);
 				return;
@@ -2347,154 +2341,22 @@ namespace Dice
 					RoomRule[dice_msg.group_id] = intRoomRule;
 					string strReply;
 					if (intRoomRule == 1)
-						strReply = GlobalMsg["strRoomRuleSet"] + "µ±Ç°·¿¹æÎª£º´ó³É¹¦£º1  ´óÊ§°Ü£º100";
+						strReply = GlobalMsg["strRoomRuleSet"] + "å½“å‰æˆ¿è§„ä¸ºï¼šå¤§æˆåŠŸï¼š1  å¤§å¤±è´¥ï¼š100";
 					else if (!intRoomRule)
-						strReply = GlobalMsg["strRoomRuleSet"] + "µ±Ç°·¿¹æÎª£º´ó³É¹¦£ºÒÑ½ûÓÃ  ´óÊ§°Ü£ºÒÑ½ûÓÃ";
+						strReply = GlobalMsg["strRoomRuleSet"] + "å½“å‰æˆ¿è§„ä¸ºï¼šå¤§æˆåŠŸï¼šå·²ç¦ç”¨  å¤§å¤±è´¥ï¼šå·²ç¦ç”¨";
 					else
-						strReply = GlobalMsg["strRoomRuleSet"] + "µ±Ç°·¿¹æÎª£º´ó³É¹¦£º1-" + to_string(intRoomRule) + "´óÊ§°Ü£º" + to_string(101 - intRoomRule) + "-100";
+						strReply = GlobalMsg["strRoomRuleSet"] + "å½“å‰æˆ¿è§„ä¸ºï¼šå¤§æˆåŠŸï¼š1-" + to_string(intRoomRule) + "å¤§å¤±è´¥ï¼š" + to_string(101 - intRoomRule) + "-100";
 					dice_msg.Reply(strReply);
 				}
 				return;
 							}
 		}
-		else if (strLowerMessage.substr(intMsgCnt, 3) == "lmt")
-		{
-			intMsgCnt += 3;
-			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				intMsgCnt++;
-			string Command;
-			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !isspace(
-				static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-			{
-				Command += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-			if (Command == "on")
-			{
-				string strReply = LeaveGroupScanControl(true, dice_msg.qq_id);
-				dice_msg.Reply(strReply);
-			}
-			else if (Command == "off")
-			{
-				string strReply = LeaveGroupScanControl(false, dice_msg.qq_id);
-				dice_msg.Reply(strReply);
-			}
-			else if (Command == "add")
-			{
-				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-					intMsgCnt++;
-				string strGroupID;
-				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				{
-					strGroupID += strLowerMessage[intMsgCnt];
-					intMsgCnt++;
-				}
-				if (strGroupID.empty())
-				{
-					dice_msg.Reply("Õâ¸öÈººÅ²»¶Ô¾¢£¡¶à¶àÕÒ²»µ½£¡");
-					return;
-				}
-				const long long llGroupID = stoll(strGroupID);
-				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, true);
-				dice_msg.Reply(strReply);
-			}
-			else if (Command == "rmv")
-			{
-				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-					intMsgCnt++;
-				string strGroupID;
-				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				{
-					strGroupID += strLowerMessage[intMsgCnt];
-					intMsgCnt++;
-				}
-				if (strGroupID.empty())
-				{
-					dice_msg.Reply("Õâ¸öÈººÅ²»¶Ô¾¢£¡¶à¶àÕÒ²»µ½£¡");
-					return;
-				}
-				const long long llGroupID = stoll(strGroupID);
-				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, false);
-				dice_msg.Reply(strReply);
-			}
-			else if (Command == "repo")
-			{
-					string ListReport = LMTRecReport(dice_msg.qq_id);
-					dice_msg.Reply(ListReport);
-			}
-			else if (Command == "refr")
-			{
-				string RefrRepo = RefrList(dice_msg.qq_id).LMTMsg;
-				dice_msg.Reply(RefrRepo);
-			}
-			else if (Command == "check")
-			{
-				if (dice_msg.qq_id != MasterQQID)
-				{
-					dice_msg.Reply("µÈÊ²Ã´Ê±ºòÄã³ÉÁËÎÒµÄ´ó¸±£¬»òÕß´ò°ÜÎÒ³ÉÎªĞÂµÄ´¬³¤£¬ÔÙÀ´¶ÔÎÒ·¢ºÅÊ©Áî°É£¡");
-					return;
-				}
-				map<long long, string> GroupList = CQ::getGroupList();
-				dice_msg.Reply("µ±Ç°ÈºÁĞ±íÀïÓĞ" + to_string(GroupList.size()) + "¸öÈº,ÇëºË¶ÔÕıÈ·ºóÔÙÆô¶¯ltsÓ´£¡");
-			}
-			else if (Command == "pack")
-			{
-				if (dice_msg.qq_id != MasterQQID)
-				{
-					dice_msg.Reply("µÈÊ²Ã´Ê±ºòÄã³ÉÁËÎÒµÄ´ó¸±£¬»òÕß´ò°ÜÎÒ³ÉÎªĞÂµÄ´¬³¤£¬ÔÙÀ´¶ÔÎÒ·¢ºÅÊ©Áî°É£¡");
-					return;
-				}
-				ListPack(true, false);
-				dice_msg.Reply("ÒÑ±¸·İÏĞÖÃ¼àÊÓµÄÊı¾İ£¡");
-			}
-			else
-			{
-				return;
-			}
-			return;
-		}
-		else if (strLowerMessage.substr(intMsgCnt, 8) == "tomaster")
-		{
-			intMsgCnt += 8;
-			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				intMsgCnt++;
-			string strAction = strip(dice_msg.msg.substr(intMsgCnt));
-			if (strAction.length() >= 1)
-			{
-				dice_msg.Reply("ºÃà¸£¬ÎÒÕâ¾Í¸æËß¶àÃ×Åµ¡ª¡ª");
-				map<long long, string> GroupList = CQ::getGroupList();
-				strAction = "À´×ÔÈº" + to_string(dice_msg.group_id) + "(" + GroupList[dice_msg.group_id] + ")µÄ" + to_string(dice_msg.qq_id) + "(" + getGroupMemberInfo(dice_msg.group_id, dice_msg.qq_id).GroupNick + ")µÄÏûÏ¢\n" + strAction;
-				CQ::sendPrivateMsg(MasterQQID, strAction);
-			}
-			else
-			{
-				dice_msg.Reply("¡°ßí¡­¡­£¿ÒªËµÊ²Ã´Äã¸æËßÎÒÂï£¡¡±");
-			}
-			return;
-		}
-		else if (strLowerMessage.substr(intMsgCnt, 2) == "cs")
-		{
-			intMsgCnt += 2;
-			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				intMsgCnt++;
-			if (intMsgCnt == strLowerMessage.length())/*.csºóÃæÊ²Ã´¶¼Ã»ÓĞ*/
-			{
-				dice_msg.Reply(strNickName + "ÔÚ¶à¶àÕâÀïµÄËùÓĞµÄ¼ì¶¨µÄ½á¹û×Ü½áÈçÏÂ,ËÄÉáÎåÈë»¹ÊÇÂùÅ·µÄÂï£ºËùÓĞ£¨½üÒ»ÖÜ£©" + CheckSumReporter(dice_msg.qq_id));
-				return;
-			}
-			if (strLowerMessage.substr(intMsgCnt, 3) == "clr")
-			{
-				if (CheckSumMap.count(dice_msg.qq_id))
-					CheckSumMap.erase(dice_msg.qq_id);
-				dice_msg.Reply("ºÃà¸£¡" + strNickName + "ÔÚ¶à¶àÕâÀïµÄËùÓĞµÄ¼ì¶¨µÄ½á¹û¶¼Çå³ıÀ²");
-			}
-		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "ra")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 2;
-			bool setporb = 0, isPunish = 1;/*ÏÂÃæÊÇĞŞ¸ÄµÄ²¿·Ömark(°üÀ¨±¾ĞĞ*/
+			bool setporb = 0, isPunish = 1;/*ä¸‹é¢æ˜¯ä¿®æ”¹çš„éƒ¨åˆ†mark(åŒ…æ‹¬æœ¬è¡Œ*/
 			string strpbNum;
 			int intpbNum = 1;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
@@ -2521,7 +2383,7 @@ namespace Dice
 				}
 				if (!intpbNum)
 					setporb = 0;
-			}/*ÉÏÃæÊÇĞŞ¸ÄµÄ²¿·Ömark(°üÀ¨±¾ĞĞ*/
+			}/*ä¸Šé¢æ˜¯ä¿®æ”¹çš„éƒ¨åˆ†mark(åŒ…æ‹¬æœ¬è¡Œ*/
 			string strSkillName;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
@@ -2573,7 +2435,7 @@ namespace Dice
 				intSkillVal = stoi(strSkillVal);
 			}
 			int intD100Res = RandomGenerator::Randint(1, 100);
-			string strReply = strNickName + "µÄ" + strSkillName + "¼ì¶¨£¡D100=" + to_string(intD100Res);/*ÏÂÃæÊÇĞŞ¸ÄµÄ²¿·Ömark(°üÀ¨±¾ĞĞ*/
+			string strReply = strNickName + "è¿›è¡Œ" + strSkillName + "æ£€å®š: D100=" + to_string(intD100Res);/*ä¸‹é¢æ˜¯ä¿®æ”¹çš„éƒ¨åˆ†mark(åŒ…æ‹¬æœ¬è¡Œ*/
 			if (setporb)
 			{
 				int pbRandom, single_figures;
@@ -2584,7 +2446,7 @@ namespace Dice
 					single_figures = intD100Res % 10;
 				if (isPunish)
 				{
-					pbShow = "£¨³Í·£÷»£º";
+					pbShow = "ï¼ˆæƒ©ç½šéª°ï¼š";
 					for (int pbCunt = 0; pbCunt < intpbNum; pbCunt++)
 					{
 						pbRandom = RandomGenerator::Randint(0, 9);
@@ -2598,7 +2460,7 @@ namespace Dice
 				}
 				else
 				{
-					pbShow = "£¨½±Àø÷»£º";
+					pbShow = "ï¼ˆå¥–åŠ±éª°ï¼š";
 					for (int pbCunt = 0; pbCunt < intpbNum; pbCunt++)
 					{
 						pbRandom = RandomGenerator::Randint(0, 9);
@@ -2610,17 +2472,17 @@ namespace Dice
 							intD100Res = pbRandom + single_figures;
 					}
 				}
-				pbShow = pbShow + "£©£¬×îÖÕ½á¹ûÊÇ£º" + to_string(intD100Res);
+				pbShow = pbShow + "ï¼‰ï¼Œæœ€ç»ˆç»“æœæ˜¯ï¼š" + to_string(intD100Res);
 				strReply += pbShow + "/" + to_string(intSkillVal) + " ";
 			}
 			else
 				strReply += "/" + to_string(intSkillVal) + " ";
-			int RoomRuleNum = 5;/*×Ô¶¨Òå·¿¹æ²¿·Ö£¨°üÀ¨´ËĞĞÏòÏÂ*/
+			int RoomRuleNum = 5;/*è‡ªå®šä¹‰æˆ¿è§„éƒ¨åˆ†ï¼ˆåŒ…æ‹¬æ­¤è¡Œå‘ä¸‹*/
 			if (RoomRule.count(dice_msg.group_id))
 				RoomRuleNum = RoomRule[dice_msg.group_id];
-			/*ÉÏÃæÊÇĞŞ¸ÄµÄ²¿·Ömark(°üÀ¨±¾ĞĞ*/
+			/*ä¸Šé¢æ˜¯ä¿®æ”¹çš„éƒ¨åˆ†mark(åŒ…æ‹¬æœ¬è¡Œ*/
 
-			if (intD100Res <= intSkillVal)/*³É¹¦*/
+			if (intD100Res <= intSkillVal)/*æˆåŠŸ*/
 			{
 				if (intD100Res <= RoomRuleNum)
 				{
@@ -2643,7 +2505,7 @@ namespace Dice
 					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::Success);
 				}
 			}
-			else/*Ê§°Ü*/
+			else/*å¤±è´¥*/
 			{
 				if (intD100Res >= (101 - RoomRuleNum))
 				{
@@ -2659,16 +2521,16 @@ namespace Dice
 
 			if (!strReason.empty())
 			{
-				strReply = "ÎªÁË" + strReason + " " + strReply;
+				strReply = "ç”±äº" + strReason + " " + strReply;
 			}
 			dice_msg.Reply(strReply);
 		}
 		else if (strLowerMessage.substr(intMsgCnt, 2) == "rc")
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 2;
-				bool setporb = 0, isPunish = 1;/*ÏÂÃæÊÇĞŞ¸ÄµÄ²¿·Ömark(°üÀ¨±¾ĞĞ*/
+				bool setporb = 0, isPunish = 1;/*ä¸‹é¢æ˜¯ä¿®æ”¹çš„éƒ¨åˆ†mark(åŒ…æ‹¬æœ¬è¡Œ*/
 			string strpbNum;
 			int intpbNum = 1;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
@@ -2695,7 +2557,7 @@ namespace Dice
 				}
 				if (!intpbNum)
 					setporb = 0;
-			}/*ÉÏÃæÊÇĞŞ¸ÄµÄ²¿·Ömark(°üÀ¨±¾ĞĞ*/
+			}/*ä¸Šé¢æ˜¯ä¿®æ”¹çš„éƒ¨åˆ†mark(åŒ…æ‹¬æœ¬è¡Œ*/
 			string strSkillName;
 			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
@@ -2747,7 +2609,7 @@ namespace Dice
 				intSkillVal = stoi(strSkillVal);
 			}
 			int intD100Res = RandomGenerator::Randint(1, 100);
-			string strReply = strNickName + "µÄ" + strSkillName + "¼ì¶¨£¡D100=" + to_string(intD100Res);/*ÏÂÃæÊÇĞŞ¸ÄµÄ²¿·Ömark(°üÀ¨±¾ĞĞ*/
+			string strReply = strNickName + "è¿›è¡Œ" + strSkillName + "æ£€å®š: D100=" + to_string(intD100Res);/*ä¸‹é¢æ˜¯ä¿®æ”¹çš„éƒ¨åˆ†mark(åŒ…æ‹¬æœ¬è¡Œ*/
 			if (setporb)
 			{
 				int pbRandom, single_figures;
@@ -2758,7 +2620,7 @@ namespace Dice
 					single_figures = intD100Res % 10;
 				if (isPunish)
 				{
-					pbShow = "£¨³Í·£÷»£º";
+					pbShow = "ï¼ˆæƒ©ç½šéª°ï¼š";
 					for (int pbCunt = 0; pbCunt < intpbNum; pbCunt++)
 					{
 						pbRandom = RandomGenerator::Randint(0, 9);
@@ -2772,7 +2634,7 @@ namespace Dice
 				}
 				else
 				{
-					pbShow = "£¨½±Àø÷»£º";
+					pbShow = "ï¼ˆå¥–åŠ±éª°ï¼š";
 					for (int pbCunt = 0; pbCunt < intpbNum; pbCunt++)
 					{
 						pbRandom = RandomGenerator::Randint(0, 9);
@@ -2784,13 +2646,13 @@ namespace Dice
 							intD100Res = pbRandom + single_figures;
 					}
 				}
-				pbShow = pbShow + "£©£¬×îÖÕ½á¹ûÊÇ£º" + to_string(intD100Res);
+				pbShow = pbShow + "ï¼‰ï¼Œæœ€ç»ˆç»“æœæ˜¯ï¼š" + to_string(intD100Res);
 				strReply += pbShow + "/" + to_string(intSkillVal) + " ";
 			}
 			else
-				strReply += "/" + to_string(intSkillVal) + " ";/*ÉÏÃæÊÇĞŞ¸ÄµÄ²¿·Ömark(°üÀ¨±¾ĞĞ*/
+				strReply += "/" + to_string(intSkillVal) + " ";/*ä¸Šé¢æ˜¯ä¿®æ”¹çš„éƒ¨åˆ†mark(åŒ…æ‹¬æœ¬è¡Œ*/
 
-			if (intD100Res <= intSkillVal)/*³É¹¦*/
+			if (intD100Res <= intSkillVal)/*æˆåŠŸ*/
 			{
 				if (intD100Res == 1)
 				{
@@ -2813,7 +2675,7 @@ namespace Dice
 					CheckSumRecorder(dice_msg.qq_id, CheckSumEnum::Success);
 				}
 			}
-			else/*Ê§°Ü*/
+			else/*å¤±è´¥*/
 			{
 				if ((intSkillVal >= 50) && (intD100Res == 100))
 				{
@@ -2835,14 +2697,14 @@ namespace Dice
 			
 			if (!strReason.empty())
 			{
-				strReply = "ÎªÁË" + strReason + " " + strReply;
+				strReply = "ç”±äº" + strReason + " " + strReply;
 			}
 			dice_msg.Reply(strReply);
 		}
 		else if (strLowerMessage[intMsgCnt] == 'r')
 		{
 			if (dice_msg.msg_type == Dice::MsgType::Group)
-				LastMsgTimeRecorder(dice_msg.group_id);/*×îºó·¢ÑÔÊ±¼ä¼ÇÂ¼Ä£¿é*/
+				LastMsgTimeRecorder(dice_msg.group_id);/*æœ€åå‘è¨€æ—¶é—´è®°å½•æ¨¡å—*/
 			intMsgCnt += 1;
 			bool boolDetail = true, isHidden = false;
 			if (dice_msg.msg[intMsgCnt] == 's')
@@ -2950,7 +2812,7 @@ namespace Dice
 				intTurnCnt = rdTurnCnt.intTotal;
 				if (strTurnCnt.find("d") != string::npos)
 				{
-					string strTurnNotice = strNickName + "Ò»¹²Òª÷» " + rdTurnCnt.FormShortString() + "ÂÖ¡ª¡ª";
+					string strTurnNotice = strNickName + "çš„æ·éª°è½®æ•°: " + rdTurnCnt.FormShortString() + "è½®";
 					if (!isHidden)
 					{
 						dice_msg.Reply(strTurnNotice);
@@ -2959,11 +2821,11 @@ namespace Dice
 					{
 						if (dice_msg.msg_type == Dice::MsgType::Group)
 						{
-							strTurnNotice = "ÔÚÈº\"" + getGroupList()[dice_msg.group_id] + "\"ÖĞ " + strTurnNotice;
+							strTurnNotice = "åœ¨ç¾¤\"" + getGroupList()[dice_msg.group_id] + "\"ä¸­ " + strTurnNotice;
 						}
 						else if (dice_msg.msg_type == Dice::MsgType::Discuss)
 						{
-							strTurnNotice = "ÔÚ¶àÈËÁÄÌìÖĞ " + strTurnNotice;
+							strTurnNotice = "åœ¨å¤šäººèŠå¤©ä¸­ " + strTurnNotice;
 						}
 						AddMsgToQueue(Dice::DiceMsg(strTurnNotice, 0LL, dice_msg.qq_id, Dice::MsgType::Private));
 						pair<multimap<long long, long long>::iterator, multimap<long long, long long>::iterator> range;
@@ -3030,13 +2892,13 @@ namespace Dice
 			}
 			if (!boolDetail && intTurnCnt != 1)
 			{
-				string strAns = strNickName + "÷»³öÁË: " + to_string(intTurnCnt) + "´Î" + rdMainDice.strDice + ": { ";
+				string strAns = strNickName + "éª°å‡ºäº†: " + to_string(intTurnCnt) + "æ¬¡" + rdMainDice.strDice + ": { ";
 				if (!strReason.empty())
-					strAns.insert(0, "ÎªÁË" + strReason + " ");
+					strAns.insert(0, "ç”±äº" + strReason + " ");
 				vector<int> vintExVal;
 				while (intTurnCnt--)
 				{
-					// ´Ë´¦·µ»ØÖµÎŞÓÃ
+					// æ­¤å¤„è¿”å›å€¼æ— ç”¨
 					// ReSharper disable once CppExpressionWithoutSideEffects
 					rdMainDice.Roll();
 					strAns += to_string(rdMainDice.intTotal);
@@ -3049,7 +2911,7 @@ namespace Dice
 				strAns += " }";
 				if (!vintExVal.empty())
 				{
-					strAns += ",¼«Öµ: ";
+					strAns += ",æå€¼: ";
 					for (auto it = vintExVal.cbegin(); it != vintExVal.cend(); ++it)
 					{
 						strAns += to_string(*it);
@@ -3065,11 +2927,11 @@ namespace Dice
 				{
 					if (dice_msg.msg_type == Dice::MsgType::Group)
 					{
-						strAns = "ÔÚÈº\"" + getGroupList()[dice_msg.group_id] + "\"ÖĞ " + strAns;
+						strAns = "åœ¨ç¾¤\"" + getGroupList()[dice_msg.group_id] + "\"ä¸­ " + strAns;
 					}
 					else if (dice_msg.msg_type == Dice::MsgType::Discuss)
 					{
-						strAns = "ÔÚ¶àÈËÁÄÌìÖĞ " + strAns;
+						strAns = "åœ¨å¤šäººèŠå¤©ä¸­ " + strAns;
 					}
 					AddMsgToQueue(Dice::DiceMsg(strAns, 0LL, dice_msg.qq_id, Dice::MsgType::Private));
 					pair<multimap<long long, long long>::iterator, multimap<long long, long long>::iterator> range;					
@@ -3094,14 +2956,14 @@ namespace Dice
 			{
 				while (intTurnCnt--)
 				{
-					// ´Ë´¦·µ»ØÖµÎŞÓÃ
+					// æ­¤å¤„è¿”å›å€¼æ— ç”¨
 					// ReSharper disable once CppExpressionWithoutSideEffects
 					rdMainDice.Roll();
-					string strAns = strNickName + "÷»³öÁË: " + (boolDetail
+					string strAns = strNickName + "éª°å‡ºäº†: " + (boolDetail
 						? rdMainDice.FormCompleteString()
 						: rdMainDice.FormShortString());
 					if (!strReason.empty())
-						strAns.insert(0, "ÎªÁË" + strReason + " ");
+						strAns.insert(0, "ç”±äº" + strReason + " ");
 					if (!isHidden)
 					{
 						dice_msg.Reply(strAns);
@@ -3110,11 +2972,11 @@ namespace Dice
 					{
 						if (dice_msg.msg_type == Dice::MsgType::Group)
 						{
-							strAns = "ÔÚÈº\"" + getGroupList()[dice_msg.group_id] + "\"ÖĞ " + strAns;
+							strAns = "åœ¨ç¾¤\"" + getGroupList()[dice_msg.group_id] + "\"ä¸­ " + strAns;
 						}
 						else if (dice_msg.msg_type == Dice::MsgType::Discuss)
 						{
-							strAns = "ÔÚ¶àÈËÁÄÌìÖĞ " + strAns;
+							strAns = "åœ¨å¤šäººèŠå¤©ä¸­ " + strAns;
 						}
 						AddMsgToQueue(Dice::DiceMsg(strAns, 0LL, dice_msg.qq_id, Dice::MsgType::Private));
 						pair<multimap<long long, long long>::iterator, multimap<long long, long long>::iterator> range;
@@ -3138,9 +3000,156 @@ namespace Dice
 			}
 			if (isHidden)
 			{
-				const string strReply = strNickName + "ÍµÍµ÷»ÁËÒ»¸ö¡­¡­ÍÛàŞàŞ£¡";
+				const string strReply = strNickName + "è¿›è¡Œäº†ä¸€æ¬¡æš—éª°";
 				dice_msg.Reply(strReply);
 			}
+					else if (strLowerMessage.substr(intMsgCnt, 3) == "cat")//éšæœºçŒ«çš„åˆ†æ”¯
+		{
+			if (dice_msg.msg_type == Dice::MsgType::Private)
+			{
+				dice_msg.Reply(GlobalMsg["strCommandNotAvailableErr"]);
+				return;
+			}
+			else
+			{
+				HANDLE CathThread = CreateThread(NULL, 0, CatImage, NULL, 0, NULL);/*ä¸‹è½½Catå›¾ç‰‡*/
+				dice_msg.Reply(strNickName + "å¬å”¤äº†è¿™æ ·ä¸€åªçŒ«çŒ«ï¼");
+				dice_msg.Reply("[CQ:image,file=cat.jpg]");
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 3) == "lmt")
+		{
+			intMsgCnt += 3;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			string Command;
+			while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !isspace(
+				static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+			{
+				Command += strLowerMessage[intMsgCnt];
+				intMsgCnt++;
+			}
+			if (Command == "on")
+			{
+				string strReply = LeaveGroupScanControl(true, dice_msg.qq_id);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "off")
+			{
+				string strReply = LeaveGroupScanControl(false, dice_msg.qq_id);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "add")
+			{
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string strGroupID;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strGroupID += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if (strGroupID.empty())
+				{
+					dice_msg.Reply("ä½ å‘¼å«çš„ç¾¤å·æ˜¯ç©ºå·ï¼è¯·æŸ¥è¯åå†æ‹¨ï¼");
+					return;
+				}
+				const long long llGroupID = stoll(strGroupID);
+				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, true);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "rmv")
+			{
+				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+					intMsgCnt++;
+				string strGroupID;
+				while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				{
+					strGroupID += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				if (strGroupID.empty())
+				{
+					dice_msg.Reply("ä½ å‘¼å«çš„ç¾¤å·æ˜¯ç©ºå·ï¼è¯·æŸ¥è¯åå†æ‹¨ï¼");
+					return;
+				}
+				const long long llGroupID = stoll(strGroupID);
+				string strReply = WhiteListControl(dice_msg.qq_id, llGroupID, false);
+				dice_msg.Reply(strReply);
+			}
+			else if (Command == "repo")
+			{
+					string ListReport = LMTRecReport(dice_msg.qq_id);
+					dice_msg.Reply(ListReport);
+			}
+			else if (Command == "refr")
+			{
+				string RefrRepo = RefrList(dice_msg.qq_id).LMTMsg;
+				dice_msg.Reply(RefrRepo);
+			}
+			else if (Command == "check")
+			{
+				if (dice_msg.qq_id != MasterQQID)
+				{
+					dice_msg.Reply("ä½ ä¸æ˜¯æˆ‘çš„è€æ¿ï¼Œæˆ‘æ‰ä¸å¬ä½ çš„");
+					return;
+				}
+				map<long long, string> GroupList = CQ::getGroupList();
+				dice_msg.Reply("å½“å‰ç¾¤åˆ—è¡¨é‡Œæœ‰" + to_string(GroupList.size()) + "ä¸ªç¾¤,è¯·æ ¸å¯¹æ­£ç¡®åå†å¯åŠ¨ltså“Ÿï¼");
+			}
+			else if (Command == "pack")
+			{
+				if (dice_msg.qq_id != MasterQQID)
+				{
+					dice_msg.Reply("ä½ ä¸æ˜¯æˆ‘çš„è€æ¿ï¼Œæˆ‘æ‰ä¸å¬ä½ çš„");
+					return;
+				}
+				ListPack(true, false);
+				dice_msg.Reply("å·²å¤‡ä»½é—²ç½®ç›‘è§†çš„æ•°æ®ï¼");
+			}
+			else
+			{
+				return;
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 8) == "tomaster")
+		{
+			intMsgCnt += 8;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			string strAction = strip(dice_msg.msg.substr(intMsgCnt));
+			if (strAction.length() >= 1)
+			{
+				dice_msg.Reply("å¥½çš„ï¼Œæˆ‘è¿™å°±å‘Šè¯‰æŸ´åˆ€");
+				map<long long, string> GroupList = CQ::getGroupList();
+				strAction = "æ¥è‡ªç¾¤" + to_string(dice_msg.group_id) + "(" + GroupList[dice_msg.group_id] + ")çš„" + to_string(dice_msg.qq_id) + "(" + getGroupMemberInfo(dice_msg.group_id, dice_msg.qq_id).GroupNick + ")çš„æ¶ˆæ¯\n" + strAction;
+				CQ::sendPrivateMsg(MasterQQID, strAction);
+			}
+			else
+			{
+				dice_msg.Reply("æˆ‘ä¸çŸ¥é“ä½ æƒ³è¯´ä»€ä¹ˆ");
+			}
+			return;
+		}
+		else if (strLowerMessage.substr(intMsgCnt, 2) == "cs")
+		{
+			intMsgCnt += 2;
+			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+				intMsgCnt++;
+			if (intMsgCnt == strLowerMessage.length())/*.csåé¢ä»€ä¹ˆéƒ½æ²¡æœ‰*/
+			{
+				dice_msg.Reply("æ ¹æ®è®°å½•ï¼Œ" + strNickName + "åœ¨é’æœ¨è²è¿™é‡Œçš„æ‰€æœ‰çš„æ£€å®šçš„ç»“æœæ€»ç»“å¦‚ä¸‹ï¼šæ‰€æœ‰ï¼ˆè¿‘ä¸€å‘¨ï¼‰" + CheckSumReporter(dice_msg.qq_id));
+				return;
+			}
+			if (strLowerMessage.substr(intMsgCnt, 3) == "clr")
+			{
+				if (CheckSumMap.count(dice_msg.qq_id))
+					CheckSumMap.erase(dice_msg.qq_id);
+				dice_msg.Reply("æŒ‰ç…§è¦æ±‚" + strNickName + "åœ¨é’æœ¨è²è¿™é‡Œçš„æ‰€æœ‰çš„æ£€å®šçš„ç»“æœå·²è¢«æ¸…é™¤");
+			}
+		}
 		}
 		else
 		{
@@ -3168,10 +3177,10 @@ namespace Dice
 			{
 				strReply.replace(strReply.find("{sex}"), 5,
 					getStrangerInfo(beingOperateQQ).sex == 0
-					? "ÄĞ"
+					? "ç”·"
 					: getStrangerInfo(beingOperateQQ).sex == 1
-					? "Å®"
-					: "Î´Öª");
+					? "å¥³"
+					: "æœªçŸ¥");
 			}
 			while (strReply.find("{qq}") != string::npos)
 			{
