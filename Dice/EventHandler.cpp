@@ -678,16 +678,10 @@ if (strLowerMessage.substr(intMsgCnt, 4) == "show")
 				}
 				if (SkillNameReplace.count(strSkillName))
 					strSkillName = SkillNameReplace[strSkillName];
-				if (PlayerGroupList.count(dice_msg.qq_id) && PlayerGroupList[dice_msg.qq_id].count(dice_msg.group_id) 
-					&& MultCharProp[dice_msg.qq_id][PlayerGroupList[dice_msg.qq_id][dice_msg.group_id]].count(strSkillName))
-				{
-					dice_msg.Reply(format(GlobalMsg["strProp"], { "[½ÇÉ«¿¨]" + PlayerGroupList[dice_msg.qq_id][dice_msg.group_id],strSkillName,
-						to_string(MultCharProp[dice_msg.qq_id][PlayerGroupList[dice_msg.qq_id][dice_msg.group_id]][strSkillName]) }));
-				}
 				else if (CharacterProp.count(SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)) 
 					&& CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)].count(strSkillName))
 				{
-					dice_msg.Reply(format(GlobalMsg["strProp"], {strNickName + "µÄ[Ä¬ÈÏ¿¨]", strSkillName, 
+					dice_msg.Reply(format(GlobalMsg["strProp"], {strNickName, strSkillName, 
 						to_string(CharacterProp[SourceType(dice_msg.qq_id, dice_msg.msg_type, dice_msg.group_id)][strSkillName])}));
 				}
 				else if (SkillDefaultVal.count(strSkillName))
